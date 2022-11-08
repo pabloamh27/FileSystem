@@ -2,20 +2,19 @@ use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, 
 use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
 use std::ffi::OsStr;
 use std::mem;
-use crate::mkfs;
 use serde::{Serialize, Deserialize};
-use crate::ses_infor::FileAttrDef;
-use qrcode::QrCode;
+use crate::fileAttribute::*;
 use image::Luma;
 
 
+
 //Se guarda el contenido de cada iNode creado
-#[derive(Serialize, Deserialize)]
-pub struct Mem_block {
-    ino_ref : u64,
-    data : Vec<u8>
+#[derive(Serialize, Deserialize, Clone)]
+pub struct MemoryBlock {
+    pub ino_ref : u64,
+    pub data : Vec<u8>
 }
-impl Mem_block {
+impl MemoryBlock {
     //Agrega una referencia a si mismo
     pub fn add_data(&mut self,data: u8) {
         self.data.push(data);

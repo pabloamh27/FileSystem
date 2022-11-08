@@ -2,20 +2,18 @@ use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, 
 use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
 use std::ffi::OsStr;
 use std::mem;
-use crate::mkfs;
 use serde::{Serialize, Deserialize};
-use crate::ses_infor::FileAttrDef;
-use qrcode::QrCode;
 use image::Luma;
+use crate::fileAttribute::FileAttrDef;
 
-#[path = "src/filestructure/fileAttribute.rs"] use fileAttribute;
 
 //Los Inodes son la unidad que movera nuestro fs
+
 #[derive(Serialize, Deserialize)]
 pub struct Inode {
     pub name: String,
     #[serde(with = "FileAttrDef")]
-    pub attributes : fileAttribute,
+    pub attributes : FileAttr,
     pub references: Vec<usize>
 }
 

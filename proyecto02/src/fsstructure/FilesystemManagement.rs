@@ -2,18 +2,16 @@ use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, 
 use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
 use std::ffi::OsStr;
 use std::mem;
-use crate::mkfs;
 use serde::{Serialize, Deserialize};
-use crate::ses_infor::FileAttrDef;
-use qrcode::QrCode;
+use crate::fileAttribute;
 use image::Luma;
 use crate::Disk::*;
 use crate::SaveDisk::*;
 use crate::Inode::*;
+use crate::MemoryBlock::*;
 
 #[path = "src/fsstructure/Inode.rs"] use Inode;
 #[path = "src/fsstructure/Disk.rs"] use Disk;
-#[path = "src/fsstructure/SaveDisk.rs"] use SaveDisk;
 
 //Nuestro fs tiene un disco
 pub struct Rb_fs {
@@ -36,16 +34,17 @@ impl Rb_fs {
         self.disk = new_disk;
     }
 
+    /*
     pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
         save_to_qr(self.disk.path_save.clone(),encode_fs);
     }
-
+    */
 }
 
 impl Drop for Rb_fs {
     fn drop(&mut self) {
-        &self.save_fs();
+        //&self.save_fs();
         println!("---RB-FS SAVED---!");
     }
 }
@@ -80,7 +79,7 @@ impl Filesystem for Rb_fs {
         let ts = time::now().to_timespec();
 
         let attr = FileAttr {
-            ino: ino_available,
+            ino: ino_available.clone(),
             size: 0,
             blocks: 1,
             atime: ts,
@@ -108,11 +107,11 @@ impl Filesystem for Rb_fs {
 
         self.disk.write_ino(inode);
 
-        self.disk.add_reference(parent, ino_available as usize);
-        self.disk.memory_block.push(MemoryBlock);
+        self.disk.add_reference(parent, ino_available.clone() as usize);
+        self.disk.memory_block.push(MemoryBlock.clone());
         println!("----RB-FS: CREATED----");
 
-        reply.created(&ts, &attr, 1, ino_available, flags)
+        reply.created(&ts, &attr, 1, ino_available.clone(), flags.clone())
     }
 
     //Escribe dentro de un archivo en base al ino pasado
@@ -124,7 +123,7 @@ impl Filesystem for Rb_fs {
         match inode {
             Some(inode) => {
                 inode.attributes.size = data.len() as u64;
-                self.disk.write_content(ino, content);
+                self.disk.write_content(ino.clone(), content);
                 println!("----RB-FS: WRITE----");
 
                 reply.written(data.len() as u32);
@@ -219,7 +218,7 @@ impl Filesystem for Rb_fs {
 
                 reply.ok()
             },
-            None => { println!("ERROR ino={:?}", ino); reply.error(ENOENT) }
+            None => { println!("ERROR ino={:?}", ino.clone()); reply.error(ENOENT) }
         }
     }
 
@@ -256,7 +255,7 @@ impl Filesystem for Rb_fs {
         };
 
         self.disk.write_ino(inode);
-        self.disk.add_reference(parent,ino as usize);
+        self.disk.add_reference(parent,ino.clone() as usize);
 
         reply.entry(&ts, &attr, 0);
     }
@@ -270,7 +269,7 @@ impl Filesystem for Rb_fs {
         match inode {
             Some(inode) => {
                 let ino = inode.attributes.ino;
-                self.disk.clear_reference(parent, ino as usize);
+                self.disk.clear_reference(parent.clone(), ino as usize);
                 self.disk.remove_inode(ino);
 
                 reply.ok();
@@ -291,8 +290,8 @@ impl Filesystem for Rb_fs {
         let mut namelen:u32 = 77;
         let mut frsize:u32 = 1;
 
-        reply.statfs(blocks,
-                     bfree,
+        reply.statfs(blocks.clone(),
+                     bfree.clone(),
                      bavail,
                      files,
                      ffree,

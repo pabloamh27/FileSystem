@@ -1,5 +1,4 @@
 use serde::{Serialize, Deserialize};
-use fuse::{FileAttr, FileType};
 use time::Timespec;
 
 
@@ -8,7 +7,7 @@ use time::Timespec;
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "Timespec")]
-pub struct TimespecDef {
+pub(crate) struct TimespecDef {
     pub sec: i64,
     pub nsec: i32,
 }

@@ -1,25 +1,11 @@
+#[path= "src/filestructure/fileTimeSpec.rs"]
+#[path= "src/filestructure/fileType.rs"]
 use serde::{Serialize, Deserialize};
 use fuse::{FileAttr, FileType};
 use time::Timespec;
 
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "Timespec")]
-pub struct TimespecDef {
-    pub sec: i64,
-    pub nsec: i32,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(remote = "FileType")]
-pub enum FileTypeDef {
-    NamedPipe,
-    CharDevice,
-    BlockDevice,
-    Directory,
-    RegularFile,
-    Symlink,
-    Socket,
-}
+use crate::fileType::*;
+use crate::fileTimeSpec::*;
 
 
 #[derive(Serialize, Deserialize)]
@@ -35,7 +21,7 @@ pub struct FileAttrDef {
     #[serde(with = "TimespecDef")]
     pub ctime: Timespec,
     #[serde(with = "TimespecDef")]
-    pub createTime: Timespec,
+    pub crtime: Timespec,
     #[serde(with = "FileTypeDef")]
     pub kind: FileType,
     pub perm: u16,

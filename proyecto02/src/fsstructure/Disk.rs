@@ -2,16 +2,13 @@ use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, 
 use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
 use std::ffi::OsStr;
 use std::mem;
-use crate::mkfs;
 use serde::{Serialize, Deserialize};
-use crate::ses_infor::FileAttrDef;
-use qrcode::QrCode;
 use image::Luma;
+use crate::fileAttribute::*;
 use crate::Inode::*;
 use crate::MemoryBlock::*;
+use crate::SaveDisk::*;
 
-#[path = "src/fsstructure/Inode.rs"] use Inode;
-#[path = "src/fsstructure/MemoryBlock.rs"] use MemoryBlock;
 
 //Creamos una estructura para guardar nuestros archivos Inodes
 //El super bloque contiene los inodes del sistema
@@ -81,8 +78,8 @@ impl Disk {
     //Retorna el siguiente ino disponible
     pub fn new_ino(&mut self) -> u64{
         unsafe{
-            self.NEXT_INO = self.NEXT_INO +1;
-            return self.NEXT_INO;
+            self.NEXT_INO = self.NEXT_INO.clone() +1;
+            return self.NEXT_INO.clone();
         }
 
     }
@@ -98,7 +95,7 @@ impl Disk {
     pub fn clear_reference(&mut self, ino: u64, ref_value: usize) {
         for i in 0..self.super_block.len() {
             if self.super_block[i].attributes.ino == ino {
-                self.super_block[i].delete_reference(ref_value);
+                self.super_block[i.clone()].delete_reference(ref_value.clone());
             }
         }
     }
@@ -106,7 +103,7 @@ impl Disk {
     pub fn add_reference(&mut self, ino: u64, ref_value: usize) {
         for i in 0..self.super_block.len() {
             if self.super_block[i].attributes.ino == ino {
-                self.super_block[i].add_reference(ref_value);
+                self.super_block[i.clone()].add_reference(ref_value.clone());
             }
         }
     }
@@ -114,7 +111,7 @@ impl Disk {
     pub fn get_inode(&self, ino: u64) -> Option<&Inode> {
         for i in 0..self.super_block.len() {
             if self.super_block[i].attributes.ino == ino {
-                return Some(&self.super_block[i]);
+                return Some(&self.super_block[i.clone()]);
             }
 
         }
@@ -124,7 +121,7 @@ impl Disk {
     pub fn get_mut_inode(&mut self, ino: u64) -> Option<&mut Inode> {
         for i in 0..self.super_block.len() {
             if self.super_block[i].attributes.ino == ino {
-                return Some(&mut self.super_block[i]);
+                return Some(&mut self.super_block[i.clone()]);
             }
 
         }
@@ -134,11 +131,11 @@ impl Disk {
     pub fn find_inode_in_references_by_name(&self, parent_inode_ino: u64, name: &str) -> Option<&Inode> {
         for i in 0..self.super_block.len() {
             if self.super_block[i].attributes.ino == parent_inode_ino {
-                let parent =  &self.super_block[i];
+                let parent =  &self.super_block[i.clone()];
                 for j in 0..parent.references.len() {
                     for k in 0..self.super_block.len() {
-                        if self.super_block[k].attributes.ino == parent.references[j].try_into().unwrap() {
-                            let child =  &self.super_block[k];
+                        if self.super_block[k].attributes.ino == parent.references[j.clone()].try_into().unwrap() {
+                            let child =  &self.super_block[k.clone()];
                             if child.name == name {
                                 return Some(child);
                             }
@@ -155,7 +152,7 @@ impl Disk {
     pub fn add_data_to_inode(&mut self, ino:u64,data:u8) {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
-                self.memory_block[i].add_data(data) ;
+                self.memory_block[i.clone()].add_data(data.clone()) ;
             }
         }
     }
@@ -164,7 +161,7 @@ impl Disk {
     pub fn delete_data_to_inode(&mut self, ino:u64,data: u8) {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
-                self.memory_block[i].delete_data(data);
+                self.memory_block[i.clone()].delete_data(data.clone());
             }
         }
     }
@@ -172,7 +169,7 @@ impl Disk {
     //Escribe un arreglo de bites dentro de un inode
     pub fn write_content(&mut self, ino_ref: u64, content: Vec<u8>) {
         for i in 0..content.len(){
-            self.add_data_to_inode(ino_ref, content[i]);
+            self.add_data_to_inode(ino_ref.clone(), content[i].clone());
 
         }
     }
@@ -181,7 +178,7 @@ impl Disk {
     pub fn get_bytes_content(&self, ino: u64) -> Option<&[u8]> {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
-                let bytes = &self.memory_block[i].data[..];
+                let bytes = &self.memory_block[i.clone()].data[..];
                 return Some(bytes);
             }
         }

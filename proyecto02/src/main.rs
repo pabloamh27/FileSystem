@@ -5,9 +5,9 @@
 //Imports de la estructura de el filesystem
 #[path = "fsstructure/Disk.rs"] mod Disk;
 #[path = "fsstructure/Inode.rs"] mod Inode;
-#[path = "fsstructure/MemoryBlock.rs"] mod MemoryBlock;
-#[path = "fsstructure/FilesystemManagement.rs"] mod FilesystemManagement;
-#[path = "fsstructure/SaveDisk.rs"] mod SaveDisk;
+#[path = "fsstructure/memory_block.rs"] mod memory_block;
+#[path = "fsstructure/filesystem_management.rs"] mod filesystem_management;
+#[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
 use std::env;

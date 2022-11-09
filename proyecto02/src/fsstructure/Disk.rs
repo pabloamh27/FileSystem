@@ -6,16 +6,14 @@ use serde::{Serialize, Deserialize};
 use image::Luma;
 use crate::fileAttribute::*;
 use crate::Inode::*;
-use crate::MemoryBlock::*;
-use crate::SaveDisk::*;
+use crate::memory_block::*;
+use crate::save_disk::*;
 
 
 //Creamos una estructura para guardar nuestros archivos Inodes
-//El super bloque contiene los inodes del sistema
-//tambien la memoria de cada inote
-#[derive(Serialize, Deserialize)]//Con esto podemos guardar el so
+#[derive(Serialize, Deserialize)]
 pub struct Disk {
-    pub super_block : Vec<Inode>,
+    pub inodes_block: Vec<Inode>,
     pub memory_block : Vec<MemoryBlock>,
     pub root_path: String,
     pub path_save: String
@@ -26,18 +24,18 @@ impl Disk {
 
         println!("-----CREATING DISK------");
         unsafe{
-            let mut MemoryBlock = Vec::new();
+            let mut memory_block = Vec::new();
             let mut blocks = Vec::new(); //Aca guardamos los inodes
-            let ts = time::now().to_timespec();
+            let time = time::now().to_timespec();
             let attributes = FileAttr {
                 ino: 1,
                 size: 0,
                 blocks: 0,
-                atime: ts,
-                mtime: ts,
+                atime: time,
+                mtime: time,
 
-                ctime: ts,
-                crtime: ts,
+                ctime: time,
+                crtime: time,
                 kind: FileType::Directory,
                 perm: 0o755,
                 nlink: 0,
@@ -47,15 +45,15 @@ impl Disk {
                 flags: 0,
             };
             let name = "Empty";
-            let initial_node = Inode {
+            let first_node = Inode {
                 name : name.to_string(),
                 attributes,
                 references: Vec::new()
             };
 
-            blocks.push(initial_node);
+            blocks.push(first_node);
 
-            let new_disk = Disk {super_block : blocks, memory_block : MemoryBlock,root_path :  path, path_save:path_to_save};
+            let new_disk = Disk { inodes_block: blocks, memory_block,root_path :  path, path_save:path_to_save};
             if validate_path(disk_path.clone()) {
                 println!("------WE FOUND A DISK TO LOAD------");
                 let disk_to_load = load_fs(disk_path);
@@ -77,43 +75,43 @@ impl Disk {
     }
 
     pub fn get_next_ino(&mut self) -> u64 {
-        return (self.super_block.len() + 1) as u64;
+        return (self.inodes_block.len() + 1) as u64;
     }
 
 
     //Agrega el inode al super bloque
     pub fn write_ino(&mut self, inode:Inode) {
-        self.super_block.push(inode);
+        self.inodes_block.push(inode);
     }
 
     //Elimina el inode disponible
     pub fn remove_inode(&mut self, inode:u64) {
-        self.super_block.retain(|i| i.attributes.ino != inode);
+        self.inodes_block.retain(|i| i.attributes.ino != inode);
     }
 
     //Elimina una referencia de un respectivo inode
     pub fn clear_reference(&mut self, ino: u64, ref_value: usize) {
-        for i in 0..self.super_block.len() {
-            if self.super_block[i].attributes.ino == ino {
-                self.super_block[i.clone()].delete_reference(ref_value.clone());
+        for i in 0..self.inodes_block.len() {
+            if self.inodes_block[i].attributes.ino == ino {
+                self.inodes_block[i.clone()].delete_reference(ref_value.clone());
             }
         }
     }
 
     //Agrega una respectiva referencia a un inode
     pub fn add_reference(&mut self, ino: u64, ref_value: usize) {
-        for i in 0..self.super_block.len() {
-            if self.super_block[i].attributes.ino == ino {
-                self.super_block[i.clone()].add_reference(ref_value.clone());
+        for i in 0..self.inodes_block.len() {
+            if self.inodes_block[i].attributes.ino == ino {
+                self.inodes_block[i.clone()].add_reference(ref_value.clone());
             }
         }
     }
 
     //Obtiene un Inode o nada
     pub fn get_inode(&self, ino: u64) -> Option<&Inode> {
-        for i in 0..self.super_block.len() {
-            if self.super_block[i].attributes.ino == ino {
-                return Some(&self.super_block[i.clone()]);
+        for i in 0..self.inodes_block.len() {
+            if self.inodes_block[i].attributes.ino == ino {
+                return Some(&self.inodes_block[i.clone()]);
             }
         }
         return None;
@@ -121,9 +119,9 @@ impl Disk {
 
     //Obtiene un Inode mutable o nada
     pub fn get_mut_inode(&mut self, ino: u64) -> Option<&mut Inode> {
-        for i in 0..self.super_block.len() {
-            if self.super_block[i].attributes.ino == ino {
-                return Some(&mut self.super_block[i.clone()]);
+        for i in 0..self.inodes_block.len() {
+            if self.inodes_block[i].attributes.ino == ino {
+                return Some(&mut self.inodes_block[i.clone()]);
             }
         }
         return None;
@@ -131,13 +129,13 @@ impl Disk {
 
     //Busca en base a la carpeta del padre el hijo que tenga el nombre por parametro
     pub fn find_inode_in_references_by_name(&self, parent_inode_ino: u64, name: &str) -> Option<&Inode> {
-        for i in 0..self.super_block.len() {
-            if self.super_block[i].attributes.ino == parent_inode_ino {
-                let parent =  &self.super_block[i.clone()];
+        for i in 0..self.inodes_block.len() {
+            if self.inodes_block[i].attributes.ino == parent_inode_ino {
+                let parent =  &self.inodes_block[i.clone()];
                 for j in 0..parent.references.len() {
-                    for k in 0..self.super_block.len() {
-                        if self.super_block[k].attributes.ino == parent.references[j.clone()].try_into().unwrap() {
-                            let child =  &self.super_block[k.clone()];
+                    for k in 0..self.inodes_block.len() {
+                        if self.inodes_block[k].attributes.ino == parent.references[j.clone()].try_into().unwrap() {
+                            let child =  &self.inodes_block[k.clone()];
                             if child.name == name {
                                 return Some(child);
                             }

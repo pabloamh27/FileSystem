@@ -10,11 +10,21 @@
 #[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
+use crate::save_disk::write_pixels;
+
+
 use std::env;
 use std::ffi::OsStr;
 use image;
 use quircs;
 
+
+
+
 fn main() {
-    println!("Hello, world!");
+    let caca: Vec<u8> = vec![1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,1,0,1];
+
+
+
+    write_pixels(5,4,caca);
 }

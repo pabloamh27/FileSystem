@@ -8,6 +8,12 @@ use crate::fileAttribute;
 use image::{Pixel, Luma, GenericImageView, GenericImage, DynamicImage, ImageBuffer, Rgb, Rgba, RgbaImage, RgbImage, GrayImage, GrayAlphaImage, ImageOutputFormat};
 use crate::Disk::*;
 use image::io::Reader as ImageReader;
+
+use std::path::Path;
+use std::fs::File;
+use std::io::BufWriter;
+
+
 #[path = "src/fsstructure/Disk.rs"] use Disk;
 
 
@@ -56,32 +62,57 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 // https://morioh.com/p/a3e5136ef8db
 // =================================================================================================
 //Escribe pixeles en una imagen
-pub fn write_pixels(height: u32, width: u32, data: Vec<u8>) {
+pub fn write_pixels(width: u32, height: u32,data: Vec<u8>) {
 
-    let mut img = image::open("image.png").unwrap();
+    let path = Path::new(r"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/imagen.png");
+    let file = File::create(path).unwrap();
+    let mut w = BufWriter::new(file);
+
+    let mut encoder = png::Encoder ::new(w, width, height);
+    //let mut encoder = png::Encoder::new(w, width, height);
+    encoder.set_color(png::ColorType::Grayscale);
+
+    let mut pixels_colors = Vec::new();
+
+    for i in 0..data.len() {
+        if data[i] == 0 {
+            pixels_colors.push(255);
+        } else {
+            pixels_colors.push(0);
+        }
+    }
+
+    let mut writer = encoder.write_header().unwrap();
+    writer.write_image_data(&pixels_colors).unwrap();
+
+
+
+
+    //let mut img = image::open("/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/image.png").unwrap();
+
     //let (width, height) = img.dimensions();
 
-    let mut output = ImageBuffer::new(width, height);
-    let (width, height) = output.dimensions();
+    /*let mut output = ImageBuffer::new(width, height);
 
     let mut i = 0;
     for (x, y, pixel) in img.pixels() {
         if data[i] == 0 {
             output.put_pixel(x, y,
                              // 0 is black, 255 is white
-                             pixel.map(|p| p.saturating_sub(0))
+                             pixel.map(|p| p.saturating_sub(255))
             );
             i = i + 1;
         } else {
             output.put_pixel(x, y,
                                 // 0 is black, 255 is white
-                             pixel.map(|p| p.saturating_sub(255))
+                             pixel.map(|p| p.saturating_sub(0))
             );
             i = i + 1;
         }
 
     }
-
+    output.save("/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/image.png").unwrap();
+    */
 }
 
 

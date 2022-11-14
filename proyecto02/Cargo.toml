@@ -17,3 +17,4 @@ serde = { version = "1.0", features = ["derive"] }
 quircs = "0.10.0"
 image = "0.23"
 sysinfo = "0.24.5"
+png = "0.17.7"

@@ -13,11 +13,17 @@ use image::Luma;
 pub struct MemoryBlock {
     pub ino_ref : u64,
     pub data : Vec<u8>
+    //Hacer que un bloque apunte a su siguiente inmediato, ya que ahora tienen tamano estatico
+    //Agregar width y height (dimension) del memory block
 }
 impl MemoryBlock {
     //Agrega una referencia a si mismo
     pub fn add_data(&mut self,data: u8) {
-        self.data.push(data);
+        if self.data.len() <= (1000 * 1000) {
+            self.data.push(data);
+        } else {
+            panic!("-----NO SE PUEDE INGRESAR DATA MAS GRANDE QUE 1000x1000-----");
+        }
     }
     //Elimina una referencia a si mismo
     pub fn delete_data(&mut self,data: u8) {

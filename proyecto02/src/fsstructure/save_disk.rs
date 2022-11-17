@@ -64,7 +64,7 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 //Escribe pixeles en una imagen
 pub fn write_pixels(width: u32, height: u32,data: Vec<u8>) {
 
-    let path = Path::new(r"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/imagen.png");
+    let path = Path::new(r"/home/estudiante/Desktop/Repos_Git/FileSystem/proyecto02/src/fsstructure/imagen.png");
     let file = File::create(path).unwrap();
     let mut w = BufWriter::new(file);
 
@@ -157,4 +157,21 @@ pub fn load_fs(path : String) -> Option<Disk>{
             return None;
         }
     }
+}
+
+pub fn load_disk(path: String) -> Option<Disk> {
+    let img = image::open(path).unwrap();
+    let mut data = Vec::new();
+    for pixel in img.pixels() {
+        let pixel = pixel.2;
+        if pixel[0] == 0 {
+            data.push(1);
+        } else {
+            data.push(0);
+        }
+    }
+    let disk_to_load = decode(data);
+    //Aca se carga el disc al fs
+    println!("----RB-FS DISCO CARGADO---------");
+    return Some(disk_to_load);
 }

@@ -52,7 +52,6 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 */
 
 
-
 // =================================================================================================
 // falta, crear la imagen de una vez con el tamaño correcto *
 // probar en el main ***
@@ -63,7 +62,18 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 // =================================================================================================
 //Escribe pixeles en una imagen
 pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &str, file_counter: u32, mut data_position: usize) {
-
+    if data.len() < ((width * height) * (file_counter + 1)) as usize {
+        //rellena con ceros hasta el tamaño de la imagen
+        println!("--------------rellenando con ceros-------------------");
+        while data.len() < ((width * height) * (file_counter + 1)) as usize {
+            println!("rellenando");
+            println!("data.len() = {}", data.len());
+            data.push(0);
+        }
+        if data.len() == ((width * height) + (file_counter + 1)) as usize {
+            println!("------------------doit---------------------");
+        }
+    }
 
     if data_position >= data.len() {
         return;
@@ -78,22 +88,13 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
     let mut w = BufWriter::new(file);
 
     let mut encoder = png::Encoder::new(w, width, height);
-    //let mut encoder = png::Encoder::new(w, width, height);
-    //encoder.set_color(png::ColorType::Grayscale);
+
 
     let mut counter = 0;
 
     let mut pixels_colors = Vec::new();
 
     for i in data_position..data.len() + 1 {
-        /*if data.len() < ((width * height) * (file_counter + 1)) as usize {
-            println!("Antes data.len(): {}", data.len());
-            while data.len() <= ((width * height) * (file_counter + 1)) as usize {
-                data.push(0);
-            }
-            println!("Despues data.len(): {}", data.len());
-            break;
-        }*/
         if counter == (width * height) as usize || i == data.len() {
             data_position = i;
             break;
@@ -113,11 +114,6 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
         return;
     }
     write_pixels(width, height, data.clone(), save_path, file_counter + 1, data_position);
-
-
-
-
-
 }
 
 

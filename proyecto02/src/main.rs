@@ -22,10 +22,11 @@ use quircs;
 
 
 fn main() {
-    /*
-    let caca: Vec<u8> = vec![1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,1,0,1];
-    write_pixels(5,4,caca);
-    */
+
+/*
+    let caca: Vec<u8> = vec![1,0,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,0,1,0,1,0,1,1,1,1,1,1,1,];
+    write_pixels(4, 4, caca, "/home/estudiante/Escritorio/S.O/proyecto2/FileSystem/proyecto02/src/output", 0, 0);
+*/
     let disk_direction = env::args().nth(1).unwrap();
     let mountpoint = env::args().nth(2).unwrap();
     let disk_to_save = env::args().nth(3).unwrap();
@@ -34,4 +35,5 @@ fn main() {
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();
     println!("RB-FS started!");
     fuse::mount(fs, &mountpoint, &options).unwrap();
+
 }

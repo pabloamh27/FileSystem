@@ -34,17 +34,18 @@ impl Rb_fs {
         self.disk = new_disk;
     }
 
-    /*
+
     pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
-        save_to_qr(self.disk.path_save.clone(),encode_fs);
+        //save_to_qr(self.disk.path_save.clone(),encode_fs);
+        write_pixels(150,150,encode_fs,"/home/estudiante/Escritorio/S.O/proyecto2/FileSystem/proyecto02/src/output", 0, 0)
     }
-    */
+
 }
 
 impl Drop for Rb_fs {
     fn drop(&mut self) {
-        //&self.save_fs();
+        &self.save_fs();
         println!("---RB-FS SAVED---!");
     }
 }

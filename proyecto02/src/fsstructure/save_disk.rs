@@ -1,5 +1,5 @@
 use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
+use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC, clone};
 use std::ffi::OsStr;
 use std::io::Cursor;
 use std::mem;
@@ -62,57 +62,62 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 // https://morioh.com/p/a3e5136ef8db
 // =================================================================================================
 //Escribe pixeles en una imagen
-pub fn write_pixels(width: u32, height: u32,data: Vec<u8>) {
+pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &str, file_counter: u32, mut data_position: usize) {
 
-    let path = Path::new(r"/home/estudiante/Desktop/Repos_Git/FileSystem/proyecto02/src/fsstructure/imagen.png");
+
+    if data_position >= data.len() {
+        return;
+    }
+
+    let final_path = format!("{}{}{}{}", save_path, "/file", file_counter, ".png");
+
+    println!("final_path: {}", final_path);
+
+    let path = Path::new(final_path.as_str());
     let file = File::create(path).unwrap();
     let mut w = BufWriter::new(file);
 
-    let mut encoder = png::Encoder ::new(w, width, height);
+    let mut encoder = png::Encoder::new(w, width, height);
     //let mut encoder = png::Encoder::new(w, width, height);
-    encoder.set_color(png::ColorType::Grayscale);
+    //encoder.set_color(png::ColorType::Grayscale);
+
+    let mut counter = 0;
 
     let mut pixels_colors = Vec::new();
 
-    for i in 0..data.len() {
-        if data[i] == 0 {
+    for i in data_position..data.len() + 1 {
+        /*if data.len() < ((width * height) * (file_counter + 1)) as usize {
+            println!("Antes data.len(): {}", data.len());
+            while data.len() <= ((width * height) * (file_counter + 1)) as usize {
+                data.push(0);
+            }
+            println!("Despues data.len(): {}", data.len());
+            break;
+        }*/
+        if counter == (width * height) as usize || i == data.len() {
+            data_position = i;
+            break;
+        }
+        else if data[i] == 0 {
             pixels_colors.push(255);
+            counter = counter + 1;
+
         } else {
             pixels_colors.push(0);
+            counter = counter + 1;
         }
     }
-
     let mut writer = encoder.write_header().unwrap();
     writer.write_image_data(&pixels_colors).unwrap();
-
-
-
-
-    //let mut img = image::open("/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/image.png").unwrap();
-
-    //let (width, height) = img.dimensions();
-
-    /*let mut output = ImageBuffer::new(width, height);
-
-    let mut i = 0;
-    for (x, y, pixel) in img.pixels() {
-        if data[i] == 0 {
-            output.put_pixel(x, y,
-                             // 0 is black, 255 is white
-                             pixel.map(|p| p.saturating_sub(255))
-            );
-            i = i + 1;
-        } else {
-            output.put_pixel(x, y,
-                                // 0 is black, 255 is white
-                             pixel.map(|p| p.saturating_sub(0))
-            );
-            i = i + 1;
-        }
-
+    if data_position >= data.len() {
+        return;
     }
-    output.save("/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/fsstructure/image.png").unwrap();
-    */
+    write_pixels(width, height, data.clone(), save_path, file_counter + 1, data_position);
+
+
+
+
+
 }
 
 

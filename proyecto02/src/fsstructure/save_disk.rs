@@ -64,14 +64,8 @@ pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
 pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &str, file_counter: u32, mut data_position: usize) {
     if data.len() < ((width * height) * (file_counter + 1)) as usize {
         //rellena con ceros hasta el tamaño de la imagen
-        println!("--------------rellenando con ceros-------------------");
         while data.len() < ((width * height) * (file_counter + 1)) as usize {
-            println!("rellenando");
-            println!("data.len() = {}", data.len());
             data.push(0);
-        }
-        if data.len() == ((width * height) + (file_counter + 1)) as usize {
-            println!("------------------doit---------------------");
         }
     }
 

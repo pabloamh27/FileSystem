@@ -37,7 +37,6 @@ impl Rb_fs {
 
     pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
-        //save_to_qr(self.disk.path_save.clone(),encode_fs);
         write_pixels(1000,1000,encode_fs,"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/output", 0, 0)
     }
 
@@ -46,29 +45,26 @@ impl Rb_fs {
 impl Drop for Rb_fs {
     fn drop(&mut self) {
         &self.save_fs();
-        println!("---RB-FS SAVED---!");
+        println!("---BWFS--SAVED---!");
     }
 }
 
 impl Filesystem for Rb_fs {
-
-    //Mira dentro de un directorio por su nombre y obtiene sus atributos
-    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
-
-        let fila_name = name.to_str().unwrap();
-        let inode = self.disk.find_inode_in_references_by_name(parent, fila_name);
+    //Busca el inode asignado al ino y devuelve sus atributos
+    fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
+        let inode = self.disk.get_inode(ino);
         match inode {
             Some(inode) => {
                 let ttl = time::now().to_timespec();
-                reply.entry(&ttl, &inode.attributes, 0);
-                println!("----RB-FS: LOOKUP----");
+                println!("----BWFS--GETATTR----");
+
+                reply.attr(&ttl, &inode.attributes);
             },
-            None => {
-                reply.error(ENOENT);
-            }
+            None => reply.error(ENOENT)
         }
     }
-    //Crea un archivo en la padre pasado poor parametro
+
+    //Crea un archivo en la padre pasado por parametro
     fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
         let ino_available = self.disk.get_next_ino();
@@ -110,9 +106,29 @@ impl Filesystem for Rb_fs {
 
         self.disk.add_reference(parent, ino_available.clone() as usize);
         self.disk.memory_block.push(memory_block.clone());
-        println!("----RB-FS: CREATED----");
+        println!("----BWFS--CREATED----");
 
         reply.created(&ts, &attr, 1, ino_available.clone(), flags.clone())
+    }
+
+
+    /*
+    FALTA:
+    -fn open(&mut self, _req: &Request, ino: u64, flags: u32, reply: ReplyOpen)
+         todo!()
+     */
+
+
+    //Busca el bloque de memoria asignado al ino y muestra su contenido
+    fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
+        let memory_block = self.disk.get_bytes_content(ino);
+        match memory_block {
+            Some(memory_block) => {reply.data(memory_block);
+                println!("----BWFS--READ----");
+
+            },
+            None => {reply.error(EIO);}
+        }
     }
 
     //Escribe dentro de un archivo en base al ino pasado
@@ -125,7 +141,7 @@ impl Filesystem for Rb_fs {
             Some(inode) => {
                 inode.attributes.size = data.len() as u64;
                 self.disk.write_content(ino.clone(), content);
-                println!("----RB-FS: WRITE----");
+                println!("----BWFS--WRITE----");
 
                 reply.written(data.len() as u32);
             },
@@ -134,17 +150,8 @@ impl Filesystem for Rb_fs {
             }
         }
     }
-    //Busca el bloque de memoria asignado al ino y muestra su contenido
-    fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
-        let memory_block = self.disk.get_bytes_content(ino);
-        match memory_block {
-            Some(memory_block) => {reply.data(memory_block);
-                println!("----RB-FS: READ----");
 
-            },
-            None => {reply.error(EIO);}
-        }
-    }
+
     //Funcion para cambiar de nombre un archivo mediante el padre
     fn rename(&mut self, _req:&Request, parent:u64, name:&OsStr, _newparent: u64, newname:&OsStr, reply:ReplyEmpty) {
         let name = name.to_str().unwrap();
@@ -155,7 +162,7 @@ impl Filesystem for Rb_fs {
                 let child = self.disk.get_mut_inode(ino);
                 match child {
                     Some(child) => {
-                        println!("----RB-FS: RENAME----");
+                        println!("----BWFS--RENAME----");
                         child.name = newname.to_str().unwrap().to_string();
                         reply.ok()
                     },
@@ -165,22 +172,48 @@ impl Filesystem for Rb_fs {
             None =>{reply.error(ENOENT);}
         }
     }
-    //Busca el inode asignado al ino y devuelve sus atributos
-    fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
-        let inode = self.disk.get_inode(ino);
-        match inode {
-            Some(inode) => {
-                let ttl = time::now().to_timespec();
-                println!("----RB-FS: GETATTR----");
 
-                reply.attr(&ttl, &inode.attributes);
-            },
-            None => reply.error(ENOENT)
-        }
+    //Crea un directorio y asigna un nuevo ino
+    fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
+        println!("----BWFS--MKDIR----");
+
+        let ino = self.disk.get_next_ino();
+        let ts = time::now().to_timespec();
+        let attr = FileAttr {
+            ino: ino as u64,
+            size: 0,
+            blocks: 1,
+            atime: ts,
+            mtime: ts,
+            ctime: ts,
+            crtime: ts,
+            kind: FileType::Directory,
+            perm: 0o755,
+            nlink: 0,
+            uid: 0,
+            gid: 0,
+            rdev: 0,
+            flags: 0,
+        };
+
+        let name = name.to_str().unwrap().to_string();
+
+
+        let inode = Inode {
+            name: name,
+            attributes: attr,
+            references: Vec::new()
+        };
+
+        self.disk.write_ino(inode);
+        self.disk.add_reference(parent,ino.clone() as usize);
+
+        reply.entry(&ts, &attr, 0);
     }
+
     //Literalmente, lee un directorio
     fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
-        println!("----RB-FS: READDIR----");
+        println!("----BWFS--READDIR----");
 
         if ino == 1 {
             if offset == 0 {
@@ -223,46 +256,22 @@ impl Filesystem for Rb_fs {
         }
     }
 
-    //Crea un directorio y asigna un nuevo ino
-    fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
-        println!("----RB-FS: MKDIR----");
+    //Abre un directorio
+    fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
+        let dir = self.disk.get_inode(_ino);
+        match dir {
+            Some(dir) => {
+                println!("----BWFS--OPENDIR----");
+                reply.opened(dir.attributes.ino, 1 as u32);
+            },
+            None => {println!("-------CANT OPEN-------")}
+        }
 
-        let ino = self.disk.get_next_ino();
-        let ts = time::now().to_timespec();
-        let attr = FileAttr {
-            ino: ino as u64,
-            size: 0,
-            blocks: 1,
-            atime: ts,
-            mtime: ts,
-            ctime: ts,
-            crtime: ts,
-            kind: FileType::Directory,
-            perm: 0o755,
-            nlink: 0,
-            uid: 0,
-            gid: 0,
-            rdev: 0,
-            flags: 0,
-        };
-
-        let name = name.to_str().unwrap().to_string();
-
-
-        let inode = Inode {
-            name: name,
-            attributes: attr,
-            references: Vec::new()
-        };
-
-        self.disk.write_ino(inode);
-        self.disk.add_reference(parent,ino.clone() as usize);
-
-        reply.entry(&ts, &attr, 0);
     }
+
     //Elimina un directorio en base al nombre
     fn rmdir(&mut self,_req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
-        println!("----RB-FS: RMDIR----");
+        println!("----BWFS--RMDIR----");
 
         let name = name.to_str().unwrap();
         let inode = self.disk.find_inode_in_references_by_name(parent, name);
@@ -278,9 +287,10 @@ impl Filesystem for Rb_fs {
             None => reply.error(EIO)
         }
     }
+
     //Devuelve las estadistcas del filesystem *no funciona bien XD
     fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
-        println!("----RB-FS: STATFS----");
+        println!("----BWFS--STATFS----");
 
         let mut blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
         let mut bfree:u64 = blocks - self.disk.memory_block.len() as u64;
@@ -303,27 +313,59 @@ impl Filesystem for Rb_fs {
 
     //Si datasync != 0, solo se deben vaciar los datos del usuario, no los metadatos.
     fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: ReplyEmpty) {
-        println!("----RB-FS: FSYNC----");
+        println!("----BWFS--FSYNC----");
         reply.error(ENOSYS);
     }
-    //Abre un directorio
-    fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
-        let dir = self.disk.get_inode(_ino);
-        match dir {
-            Some(dir) => {
-                println!("----RB-FS OPENDIR----");
-                reply.opened(dir.attributes.ino, 1 as u32);
-            },
-            None => {println!("-------CANT OPEN-------")}
-        }
 
-    }
 
     //Revisa el acceso de los permisos
     fn access(&mut self, _req: &Request, _ino: u64, _mask: u32, reply: ReplyEmpty) {
-        println!("----RB-FS: ACCESS----");
+        println!("----BWFS--ACCESS----");
         reply.ok();
     }
+
+
+    /*
+    faltan:
+    -fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
+        todo!()
+    }
+    -fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
+        todo!()
+    }
+    -fn Iseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
+        todo!()
+     */
+
+
+
+    //Revissa dentro de un directorio por su nombre y extrae los atributos
+    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+
+        let fila_name = name.to_str().unwrap();
+        let inode = self.disk.find_inode_in_references_by_name(parent, fila_name);
+        match inode {
+            Some(inode) => {
+                let ttl = time::now().to_timespec();
+                reply.entry(&ttl, &inode.attributes, 0);
+                println!("----BWFS--LOOKUP----");
+            },
+            None => {
+                reply.error(ENOENT);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

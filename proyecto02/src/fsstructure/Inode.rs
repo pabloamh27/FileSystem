@@ -23,12 +23,12 @@ impl Inode {
         self.references.push(ref_value);
     }
 
-
     //Elimina una referencia a si mismo
     pub fn delete_reference(&mut self,ref_value: usize) {
         self.references.retain(|i| *i != ref_value);
     }
 
+    //Cambia el nombre del Inode
     pub fn change_name(&mut self,value: String) {
         self.name = value;
     }

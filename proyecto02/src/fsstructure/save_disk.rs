@@ -30,32 +30,8 @@ pub fn decode(object: Vec<u8>) -> Disk {
     return decoded;
 }
 
-// =================================================================================================
-// No se descarta, pueden salir ideas de acá
-// =================================================================================================
-/*
-//Escribe pixeles en una imagen
-pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
-    let mut imgbuf = image::ImageBuffer::new(width as usize as u32, height as u32);
-    let mut i = 0;
-    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        if data[i] == 0 {
-            *pixel = image::Luma([0]);
-            i = i + 1;
-        } else {
-            *pixel = image::Luma([255]);
-            i = i + 1;
-        }
-    }
-    imgbuf.save("test.png").unwrap();
-}
-*/
-
 
 // =================================================================================================
-// falta, crear la imagen de una vez con el tamaño correcto *
-// probar en el main ***
-// En teoría funciona el for y el if, ya más de 2 fuentes lo hacen parecido
 // https://docs.rs/image/latest/image/
 // https://blog.logrocket.com/decoding-encoding-images-rust-using-image-crate/?ref=morioh.com&utm_source=morioh.com
 // https://morioh.com/p/a3e5136ef8db
@@ -123,7 +99,9 @@ pub fn validate_path(path:String) -> bool{
     }
 }
 
-
+/*
+HAY QUE HACER LA VERSION DE ESTA FUNCION QUE RECIBA UNA IMAGEN Y LA GUARDE EN EL DISCO
+ */
 pub fn load_fs(path : String) -> Option<Disk>{
     // Carga la base pasada por parametro
     let img = image::open(path).unwrap();
@@ -167,6 +145,6 @@ pub fn load_disk(path: String) -> Option<Disk> {
     }
     let disk_to_load = decode(data);
     //Aca se carga el disc al fs
-    println!("----RB-FS DISCO CARGADO---------");
+    println!("----BWFS--DISCO CARGADO---------");
     return Some(disk_to_load);
 }

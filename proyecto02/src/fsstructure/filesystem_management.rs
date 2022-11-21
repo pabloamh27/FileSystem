@@ -14,14 +14,14 @@ use crate::memory_block::*;
 #[path = "src/fsstructure/Disk.rs"] use Disk;
 
 //Nuestro fs tiene un disco
-pub struct Rb_fs {
+pub struct BWFS {
     disk : Disk
 }
-impl Rb_fs {
+impl BWFS {
     pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
         //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
         let new_disk = Disk::new(root_path.to_string(), disk_path, path_save);
-        Rb_fs {
+        BWFS {
             disk : new_disk
         }
     }
@@ -42,14 +42,14 @@ impl Rb_fs {
 
 }
 
-impl Drop for Rb_fs {
+impl Drop for BWFS {
     fn drop(&mut self) {
         &self.save_fs();
         println!("---BWFS--SAVED---!");
     }
 }
 
-impl Filesystem for Rb_fs {
+impl Filesystem for BWFS {
     //Busca el inode asignado al ino y devuelve sus atributos
     fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
         let inode = self.disk.get_inode(ino);
@@ -112,11 +112,17 @@ impl Filesystem for Rb_fs {
     }
 
 
-    /*
-    FALTA:
-    -fn open(&mut self, _req: &Request, ino: u64, flags: u32, reply: ReplyOpen)
-         todo!()
-     */
+
+    fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
+        let memory_block = self.disk.get_bytes_content(_ino);
+        match memory_block {
+            Some(memory_block) => {
+                reply.opened(1, 0);
+                print!("----BWFS--OPENED----");
+            },
+            None => reply.error(ENOENT)
+        }
+    }
 
 
     //Busca el bloque de memoria asignado al ino y muestra su contenido
@@ -324,15 +330,21 @@ impl Filesystem for Rb_fs {
         reply.ok();
     }
 
+    //---------------------------------------------------------------------------------------
+    // NO SE SI SIRVE
+    //---------------------------------------------------------------------------------------
+    fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
+        println!("----BWFS--UNLINK----");
+        reply.error(ENOSYS);
+    }
+
+    fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
+        println!("----BWFS--FLUSH----");
+        reply.error(ENOSYS);
+    }
 
     /*
     faltan:
-    -fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
-        todo!()
-    }
-    -fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
-        todo!()
-    }
     -fn Iseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
         todo!()
      */

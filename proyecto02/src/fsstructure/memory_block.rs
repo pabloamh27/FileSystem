@@ -7,7 +7,6 @@ use crate::fileAttribute::*;
 use image::Luma;
 
 
-
 //Se guarda el contenido de cada iNode creado
 #[derive(Serialize, Deserialize, Clone)]
 pub struct MemoryBlock {
@@ -16,6 +15,7 @@ pub struct MemoryBlock {
     //Hacer que un bloque apunte a su siguiente inmediato, ya que ahora tienen tamano estatico
     //Agregar width y height (dimension) del memory block
 }
+
 impl MemoryBlock {
     //Agrega una referencia a si mismo
     pub fn add_data(&mut self,data: u8) {

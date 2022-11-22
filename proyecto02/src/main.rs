@@ -11,8 +11,6 @@
 
 
 use crate::save_disk::write_pixels;
-
-
 use std::env;
 use std::ffi::OsStr;
 use image;
@@ -33,7 +31,6 @@ fn main() {
     let fs = filesystem_management::BWFS::new(mountpoint.clone(), disk_direction.clone(), disk_to_save.clone());
     //fsck::check_consistens(&fs);
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();
-    println!("RB-FS started!");
+    println!("BWFS started!");
     fuse::mount(fs, &mountpoint, &options).unwrap();
-
 }

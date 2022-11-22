@@ -118,7 +118,7 @@ impl Filesystem for BWFS {
         match memory_block {
             Some(memory_block) => {
                 reply.opened(1, 0);
-                print!("----BWFS--OPENED----");
+                print!("----BWFS--OPEN----");
             },
             None => reply.error(ENOENT)
         }
@@ -343,14 +343,15 @@ impl Filesystem for BWFS {
         reply.error(ENOSYS);
     }
 
-    /*
-    faltan:
-    -fn Iseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
-        todo!()
-     */
+
+/*
+    fn lseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
+        println!("----BWFS--LSEEK----");
+        reply.error(ENOSYS);
+    }
 
 
-
+*/
     //Revissa dentro de un directorio por su nombre y extrae los atributos
     fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 

@@ -19,48 +19,39 @@ use std::io::BufWriter;
 
 //Transforma el disco a bits
 
+/*
+Descripción: Codifica un disco y lo serializa a binario.
+Entradas: El disco a codificar.
+Salidas: Un vector de bits.
+*/
 pub fn encode(object: &Disk) -> Vec<u8> {
     let enc = bincode::serialize(object).unwrap();
     //println!("{:?}", enc);
     return enc;
 }
 //Decodifica un arreglo de bits y devuelve un Disk
+/*
+Descripción: De-codifica un disco y lo de-serializa de binario.
+Entradas: Un vector de bits. 
+Salidas: El disco decodificado.
+*/
 pub fn decode(object: Vec<u8>) -> Disk {
     let decoded: Disk = bincode::deserialize(&object[..]).unwrap();
     return decoded;
 }
 
-// =================================================================================================
-// No se descarta, pueden salir ideas de acá
-// =================================================================================================
-/*
-//Escribe pixeles en una imagen
-pub fn write_pixels(height: u32, width: u32 , data: Vec<u8>) {
-    let mut imgbuf = image::ImageBuffer::new(width as usize as u32, height as u32);
-    let mut i = 0;
-    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-        if data[i] == 0 {
-            *pixel = image::Luma([0]);
-            i = i + 1;
-        } else {
-            *pixel = image::Luma([255]);
-            i = i + 1;
-        }
-    }
-    imgbuf.save("test.png").unwrap();
-}
-*/
-
 
 // =================================================================================================
-// falta, crear la imagen de una vez con el tamaño correcto *
-// probar en el main ***
-// En teoría funciona el for y el if, ya más de 2 fuentes lo hacen parecido
 // https://docs.rs/image/latest/image/
 // https://blog.logrocket.com/decoding-encoding-images-rust-using-image-crate/?ref=morioh.com&utm_source=morioh.com
 // https://morioh.com/p/a3e5136ef8db
 // =================================================================================================
 //Escribe pixeles en una imagen
+/*
+Descripción: Se encarga de escribir los datos serializados en binario de un disco a una imagen de blanco y negro.
+Entradas: El ancho, alto, datos, ruta de guardado, contador de bloques y la posición del bloque a escribir.
+Salidas: No tiene salidas.
+*/
 pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &str, file_counter: u32, mut data_position: usize) {
     if data.len() < ((width * height) * (file_counter + 1)) as usize {
         //rellena con ceros hasta el tamaño de la imagen
@@ -111,6 +102,11 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
 }
 
 
+/*
+Descripción: Valida que la ruta de la imagen a escribir exista.
+Entradas: La ruta de la imagen a escribir.
+Salidas: Un booleano que indica si la ruta existe o no.
+*/
 pub fn validate_path(path:String) -> bool{
     let img = image::open(path);
     match img {
@@ -123,7 +119,14 @@ pub fn validate_path(path:String) -> bool{
     }
 }
 
-
+/*
+HAY QUE HACER LA VERSION DE ESTA FUNCION QUE RECIBA UNA IMAGEN Y LA GUARDE EN EL DISCO
+ */
+/*
+Descripción: Carga un sistema de archivos usando la ruta de este.
+Entradas: La ruta del sistema de archivos a cargar.
+Salidas: El sistema de archivos cargado o un error.
+*/
 pub fn load_fs(path : String) -> Option<Disk>{
     // Carga la base pasada por parametro
     let img = image::open(path).unwrap();
@@ -154,6 +157,11 @@ pub fn load_fs(path : String) -> Option<Disk>{
     }
 }
 
+/*
+Descripción: Carga un disco usando la ruta de este.
+Entradas: La ruta del disco a cargar.
+Salidas: El disco cargado o un error.
+*/
 pub fn load_disk(path: String) -> Option<Disk> {
     let img = image::open(path).unwrap();
     let mut data = Vec::new();
@@ -167,6 +175,6 @@ pub fn load_disk(path: String) -> Option<Disk> {
     }
     let disk_to_load = decode(data);
     //Aca se carga el disc al fs
-    println!("----RB-FS DISCO CARGADO---------");
+    println!("----BWFS--DISCO CARGADO---------");
     return Some(disk_to_load);
 }

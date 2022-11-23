@@ -10,6 +10,11 @@ use crate::fileTimeSpec::*;
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "FileAttr")]
+/*
+Descripción: Este struct define los parametros o atributos que va a tener cada archivo o directorio.
+Entradas: No tiene entradas.
+Salidas: No tiene salidas.
+*/
 pub struct FileAttrDef {
     pub ino: u64,
     pub size: u64,

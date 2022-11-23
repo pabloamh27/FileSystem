@@ -14,11 +14,21 @@ use crate::memory_block::*;
 #[path = "src/fsstructure/Disk.rs"] use Disk;
 
 //Nuestro fs tiene un disco
+/*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
 pub struct BWFS {
     disk : Disk
 }
 impl BWFS {
-    pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
         //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
         let new_disk = Disk::new(root_path.to_string(), disk_path, path_save);
         BWFS {
@@ -26,16 +36,31 @@ impl BWFS {
         }
     }
 
-    pub fn get_disk(&self) -> &Disk {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+pub fn get_disk(&self) -> &Disk {
         return &self.disk;
     }
 
-    pub fn set_disk(&mut self,new_disk:Disk) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+pub fn set_disk(&mut self,new_disk:Disk) {
         self.disk = new_disk;
     }
 
 
-    pub fn save_fs(&self){
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
         write_pixels(1000,1000,encode_fs,"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/output", 0, 0)
     }
@@ -67,7 +92,7 @@ impl Filesystem for BWFS {
     //Crea un archivo en la padre pasado por parametro
     fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
-        let ino_available = self.disk.get_next_ino();
+        let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
             ino_ref : ino_available,
             data : Vec::new()
@@ -102,7 +127,7 @@ impl Filesystem for BWFS {
 
         inode.references.push(memory_block.ino_ref as usize);
 
-        self.disk.write_ino(inode);
+        self.disk.write_inode(inode);
 
         self.disk.add_reference(parent, ino_available.clone() as usize);
         self.disk.memory_block.push(memory_block.clone());
@@ -183,7 +208,7 @@ impl Filesystem for BWFS {
     fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
         println!("----BWFS--MKDIR----");
 
-        let ino = self.disk.get_next_ino();
+        let ino = self.disk.get_next_available_inode();
         let ts = time::now().to_timespec();
         let attr = FileAttr {
             ino: ino as u64,
@@ -211,7 +236,7 @@ impl Filesystem for BWFS {
             references: Vec::new()
         };
 
-        self.disk.write_ino(inode);
+        self.disk.write_inode(inode);
         self.disk.add_reference(parent,ino.clone() as usize);
 
         reply.entry(&ts, &attr, 0);

@@ -12,6 +12,11 @@ use crate::save_disk::*;
 
 //Creamos una estructura para guardar nuestros archivos Inodes
 #[derive(Serialize, Deserialize)]
+/*
+Descripción: Estructura que define los atributos del disco en el que se va a guardar los datos del FS.
+Entradas: No tiene entradas.
+Salidas: No tiene salidas.
+*/
 pub struct Disk {
     pub inodes_block: Vec<Inode>,
     pub memory_block : Vec<MemoryBlock>,
@@ -20,7 +25,13 @@ pub struct Disk {
 }
 impl Disk {
     //Crea un nuevo disco y crea el inode raiz
-    pub fn new(path:String, disk_path:String, path_to_save:String) -> Disk{
+/*
+Descripción: Crea un nuevo Disk, crea un nuevo superbloque de memory blocks, asigna los tiempos iniciales y le da atributos.
+Entradas: La ruta del disco, la ruta donde se va a guardar el disco.
+Salidas: El nuevo Disk.
+*/
+
+pub fn new(path:String, disk_path:String, path_to_save:String) -> Disk{
 
         println!("-----CREATING DISK------");
         unsafe{
@@ -67,30 +78,51 @@ impl Disk {
                     }
                 }
             }
-            println!("-----CRETING NEW DISK--------");
+            println!("-----CREATING NEW DISK--------");
             return new_disk;
 
 
         }
     }
 
-    pub fn get_next_ino(&mut self) -> u64 {
+    /*
+Descripción: Obtiene el siguiente inode que este disponible en el Disk.
+Entradas: A si mismo, osea no tiene entradas.
+Salidas: El siguiente inode disponible.
+*/
+pub fn get_next_available_inode(&mut self) -> u64 {
         return (self.inodes_block.len() + 1) as u64;
     }
 
 
     //Agrega el inode al super bloque
-    pub fn write_ino(&mut self, inode:Inode) {
+    /*
+Descripción: Escribe el inode ingresado al superbloque de inodes.
+Entradas: A si mismo, el inode que se va a escribir.
+Salidas: No tiene salidas.
+*/
+pub fn write_inode(&mut self, inode:Inode) {
         self.inodes_block.push(inode);
     }
 
+
     //Elimina el inode disponible
-    pub fn remove_inode(&mut self, inode:u64) {
+    /*
+Descripción: Elimina el inode ingresado del superbloque de inodes.
+Entradas: A si mismo, el inode que se va a eliminar.
+Salidas: No tiene salidas.
+*/
+pub fn remove_inode(&mut self, inode:u64) {
         self.inodes_block.retain(|i| i.attributes.ino != inode);
     }
 
     //Elimina una referencia de un respectivo inode
-    pub fn clear_reference(&mut self, ino: u64, ref_value: usize) {
+    /*
+Descripción: Elimina la referencia a un bloque de memoria de un inode.
+Entradas: A si mismo, el inode al que se le va a eliminar la referencia, el bloque de memoria que se va a eliminar.
+Salidas: No tiene salidas.
+*/
+pub fn clear_reference(&mut self, ino: u64, ref_value: usize) {
         for i in 0..self.inodes_block.len() {
             if self.inodes_block[i].attributes.ino == ino {
                 self.inodes_block[i.clone()].delete_reference(ref_value.clone());
@@ -99,7 +131,12 @@ impl Disk {
     }
 
     //Agrega una respectiva referencia a un inode
-    pub fn add_reference(&mut self, ino: u64, ref_value: usize) {
+    /*
+Descripción: Agrega la referencia a un bloque de memoria de un inode.
+Entradas: A si mismo, el inode al que se le va a agregar la referencia, el bloque de memoria que se va a agregar.
+Salidas: No tiene salidas.
+*/
+pub fn add_reference(&mut self, ino: u64, ref_value: usize) {
         for i in 0..self.inodes_block.len() {
             if self.inodes_block[i].attributes.ino == ino {
                 self.inodes_block[i.clone()].add_reference(ref_value.clone());
@@ -108,7 +145,12 @@ impl Disk {
     }
 
     //Obtiene un Inode o nada
-    pub fn get_inode(&self, ino: u64) -> Option<&Inode> {
+    /*
+Descripción: Obtiene un inode por medio del Id, si no encuentra nada no devuelve nada.
+Entradas: A si mismo, el Id del inode que se va a buscar.
+Salidas: El inode que se buscaba o Nada.
+*/
+pub fn get_inode(&self, ino: u64) -> Option<&Inode> {
         for i in 0..self.inodes_block.len() {
             if self.inodes_block[i].attributes.ino == ino {
                 return Some(&self.inodes_block[i.clone()]);
@@ -118,7 +160,12 @@ impl Disk {
     }
 
     //Obtiene un Inode mutable o nada
-    pub fn get_mut_inode(&mut self, ino: u64) -> Option<&mut Inode> {
+    /*
+Descripción: Obtiene un inode mutable por medio del Id, si no encuentra nada no devuelve nada.
+Entradas: A si mismo, el Id del inode que se va a buscar.
+Salidas: El inode mutable que se buscaba o Nada.
+*/
+pub fn get_mut_inode(&mut self, ino: u64) -> Option<&mut Inode> {
         for i in 0..self.inodes_block.len() {
             if self.inodes_block[i].attributes.ino == ino {
                 return Some(&mut self.inodes_block[i.clone()]);
@@ -128,7 +175,12 @@ impl Disk {
     }
 
     //Busca en base a la carpeta del padre el hijo que tenga el nombre por parametro
-    pub fn find_inode_in_references_by_name(&self, parent_inode_ino: u64, name: &str) -> Option<&Inode> {
+    /*
+Descripción: Obtiene un Inode por medio del nombre, si no encuentra nada no devuelve nada.
+Entradas: A si mismo, el inode del padre, el nombre del hijo que se va a buscar.
+Salidas: El inode que se buscaba o Nada.
+*/
+pub fn find_inode_in_references_by_name(&self, parent_inode_ino: u64, name: &str) -> Option<&Inode> {
         for i in 0..self.inodes_block.len() {
             if self.inodes_block[i].attributes.ino == parent_inode_ino {
                 let parent =  &self.inodes_block[i.clone()];
@@ -148,7 +200,12 @@ impl Disk {
     }
 
     //Agrega data al bloque de memoria asociado al ino
-    pub fn add_data_to_inode(&mut self, ino:u64,data:u8) {
+    /*
+Descripción: Agrega datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
+Entradas: A si mismo, el Id del inode al que se le va a agregar datos, los datos que se van a agregar.
+Salidas: No tiene salidas.
+*/
+pub fn add_data_to_memory_block(&mut self, ino:u64,data:u8) {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
                 self.memory_block[i.clone()].add_data(data.clone()) ;
@@ -157,7 +214,12 @@ impl Disk {
     }
 
     //Elimina la data el bloque de memoria asociado al ino
-    pub fn delete_data_to_inode(&mut self, ino:u64,data: u8) {
+    /*
+Descripción: Borra datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
+Entradas: A si mismo, el Id del inode al que se le va a borrar datos, los datos que se van a borrar.
+Salidas: No tiene salidas.
+*/
+pub fn delete_data_to_memory_block(&mut self, ino:u64,data: u8) {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
                 self.memory_block[i.clone()].delete_data(data.clone());
@@ -166,15 +228,26 @@ impl Disk {
     }
 
     //Escribe un arreglo de bites dentro de un inode
-    pub fn write_content(&mut self, ino_ref: u64, content: Vec<u8>) {
+    /*
+Descripción: Escribe los datos en el memory block asociado a un Inode por medio del Id.
+Entradas: A si mismo, el Id del inode al que se le va a escribir datos, los datos que se van a escribir.
+Salidas: No tiene salidas.
+*/
+*/
+pub fn write_content(&mut self, ino_ref: u64, content: Vec<u8>) {
         for i in 0..content.len(){
-            self.add_data_to_inode(ino_ref.clone(), content[i].clone());
+            self.add_data_to_memory_block(ino_ref.clone(), content[i].clone());
 
         }
     }
 
     //Obtiene el contenido de un arreglo
-    pub fn get_bytes_content(&self, ino: u64) -> Option<&[u8]> {
+    /*
+Descripción: Obtiene los datos en el memory block asociado a un inode por medio del Id.
+Entradas: A si mismo, el Id del inode al que se le va a obtener datos.
+Salidas: Los datos que se buscaban o Nada.
+*/
+pub fn get_bytes_content(&self, ino: u64) -> Option<&[u8]> {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
                 let bytes = &self.memory_block[i.clone()].data[..];

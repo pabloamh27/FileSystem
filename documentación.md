@@ -64,28 +64,28 @@ Para la creación del FileSystem se usó:
   * <u>write_content  (Implementación de Disk):</u> Escribe los datos en el memory block asociado a un Inode por medio del Id.
   * <u>get_bytes_content  (Implementación de Disk):</u> Obtiene los datos en el memory block asociado a un inode por medio del Id.
 * **filesystem_management**
-  * <u>BWFS (Struct):</u> 
-  * <u>new  (Implementación de BWFS):</u> 
-  * <u>get_disk  (Implementación de BWFS):</u> 
-  * <u>set_disk  (Implementación de BWFS):</u>
-  * <u>save_fs  (Implementación de BWFS):</u>
-  * <u>drop  (Implementación de Drop para BWFS):</u>
-  * <u>getattr  (Implementación de Filesystem para BWFS):</u>
-  * <u>create  (Implementación de Filesystem para BWFS):</u>
-  * <u>open  (Implementación de Filesystem para BWFS):</u>
-  * <u>read  (Implementación de Filesystem para BWFS):</u>
-  * <u>write  (Implementación de Filesystem para BWFS):</u>
-  * <u>rename  (Implementación de Filesystem para BWFS):</u>
-  * <u>mkdir (Implementación de Filesystem para BWFS):</u>
-  * <u>readdir (Implementación de Filesystem para BWFS):</u>
-  * <u>opendir (Implementación de Filesystem para BWFS):</u>
-  * <u>rmdir (Implementación de Filesystem para BWFS):</u>
-  * <u>statfs (Implementación de Filesystem para BWFS):</u>
-  * <u>fsync (Implementación de Filesystem para BWFS):</u>
-  * <u>access (Implementación de Filesystem para BWFS):</u>
-  * <u>unlink (Implementación de Filesystem para BWFS):</u>
-  * <u>flush (Implementación de Filesystem para BWFS):</u>
-  * <u>lseek (Implementación de Filesystem para BWFS):</u>
+  * <u>BWFS (Struct):</u> Define la estructura del FS, básicamente que disco va a usar.
+  * <u>new  (Implementación de BWFS):</u> Crea un nuevo FS basado en un disco en especifico.
+  * <u>get_disk  (Implementación de BWFS):</u> Obtiene el disco que se esta usando en el FS actualmente.
+  * <u>set_disk  (Implementación de BWFS):</u> Setea el nuevo disco sobre el que se va a basar el FS.
+  * <u>save_fs  (Implementación de BWFS):</u> Guarda el FileSystem en una imagen blanco y negro.
+  * <u>drop  (Implementación de Drop para BWFS):</u> Apaga el FS guardandolo de manera persistente en imagenes.
+  * <u>getattr  (Implementación de Filesystem para BWFS):</u> Obtiene los atributos de un archivo existente en el FS.
+  * <u>create  (Implementación de Filesystem para BWFS):</u> Crea un archivo nuevo en el FS.
+  * <u>open  (Implementación de Filesystem para BWFS):</u> Abre un archivo existente en el FS.
+  * <u>read  (Implementación de Filesystem para BWFS):</u> Lee un archivo existente en el FS.
+  * <u>write  (Implementación de Filesystem para BWFS):</u> Escribe sobre un archivo ya existente en el FS.
+  * <u>rename  (Implementación de Filesystem para BWFS):</u> Renombra el archivo existente en el FS.
+  * <u>mkdir (Implementación de Filesystem para BWFS):</u> Crea un directorio nuevo en el FS en el que se pueden guardar archivos.
+  * <u>readdir (Implementación de Filesystem para BWFS):</u> Lee el directorio que se le pase como parámetro, este debe existir en el FS.
+  * <u>opendir (Implementación de Filesystem para BWFS):</u> Abre un directorio existente en el FS.
+  * <u>rmdir (Implementación de Filesystem para BWFS):</u> Elimina o remueve un directorio existente en el FS.
+  * <u>statfs (Implementación de Filesystem para BWFS):</u> Muestra las estadísticas básicas del FS, como cantidad de inodos o bloques de memoria.
+  * <u>fsync (Implementación de Filesystem para BWFS):</u> Sincroniza los contenidos de los archivos, si es diferente a 0 no borra los metadatos pero si los datos del usuario.
+  * <u>access (Implementación de Filesystem para BWFS):</u> Revisa si puede acceder a un archivo ya existente en el FS.
+  * <u>unlink (Implementación de Filesystem para BWFS): </u>Desvincula un archivo, ya sea vinculo normal o vínculo simbólico.
+  * <u>flush (Implementación de Filesystem para BWFS):</u> Trata de eliminar o *flushear* los datos del caché.
+  * <u>lseek (Implementación de Filesystem para BWFS):</u> Encuentra el primer hueco de datos en un offset especifico.
 * **I-node**
   * <u>I-node (Struct):</u> Define los elementos que debe contener un I-node como lo son el nombre, sus atributos y referencias a bloques de memoria.
   * <u>add_reference  (Implementación de I-node):</u> Agrega una referencia a un bloque de memoria a un I-node.
@@ -110,12 +110,12 @@ Para la creación del FileSystem se usó:
 	* mount.bwfs
 	
 	* mkfs.bwfs
-2. En caso de querer revisar el estado de un FS existente se debe: 
+2. En caso de querer **revisar el estado de un FS** existente se debe: 
 		2.1 Usar el binario fsck.bwfs de la siguiente manera por medio de la terminal: `./fsck.bwfs folderdelfs/`
-3. En caso de querer montar un FS existente debe:
+3. En caso de querer **montar un FS** existente debe:
 		3.1 Revisar que el FileSystem este en buenas condiciones, esto se puede realizar usando el binario fsck.bwfs de la siguiente manera por medio de la terminal: `./fsck.bwfs folderdelfs/`
 		3.2 Después de confirmar el correcto estado del FS debe montarlo usando el binario mount.bwfs de la siguiente manera por medio de la terminal: `./mount.bwfs folderdelfs/ mountpoint/` con el parámetro mountpoint siendo una dirección en la que se quiera montar.
-4. Por último en caso de querer crear un nuevo FS se debe:
+4. Por último en caso de querer **crear un nuevo FS** se debe:
 		4.1 Crear un FS desde cero usando el binario mkfs.bwfs de la siguiente manera por medio de la terminal: `./mkfs.bwfs folderdelnuevofs/`
 		4.2 Después se debe revisar que el FileSystem este en buenas condiciones, esto 	se puede realizar usando el binario fsck.bwfs de la siguiente manera por medio de la terminal: `./fsck.bwfs folderdelfs/`
 		4.3 Después de confirmar el correcto estado del FS debe montarlo usando el binario mount.bwfs de la siguiente manera por medio de la terminal: `./mount.bwfs folderdelfs/ mountpoint/` con el parámetro mountpoint siendo una dirección en la que se quiera montar.
@@ -147,7 +147,7 @@ aaaa
 
 
 # Lecciones Aprendidas
-
+aa
 
 # Bibliografía
 - https://docs.rs/image/latest/image/

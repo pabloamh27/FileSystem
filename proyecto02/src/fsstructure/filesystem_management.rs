@@ -15,18 +15,18 @@ use crate::memory_block::*;
 
 //Nuestro fs tiene un disco
 /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Define la estructura del FS, básicamente que disco va a usar.
+Entradas: No tiene entradas.
+Salidas: No tiene salidas.
 */
 pub struct BWFS {
     disk : Disk
 }
 impl BWFS {
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Crea un nuevo FS basado en un disco en especifico.
+Entradas: Ruta del punto de montaje, ruta del disco, ruta del disco a guardar
+Salidas: A si mismo
 */
 pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
         //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
@@ -37,18 +37,18 @@ pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
     }
 
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Obtiene el disco que se esta usando en el FS actualmente.
+Entradas: El mismo
+Salidas: El disco
 */
 pub fn get_disk(&self) -> &Disk {
         return &self.disk;
     }
 
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Setea el nuevo disco sobre el que se va a basar el FS.
+Entradas: El mismo, el disco a setear
+Salidas: No hay salidas.
 */
 pub fn set_disk(&mut self,new_disk:Disk) {
         self.disk = new_disk;
@@ -56,9 +56,9 @@ pub fn set_disk(&mut self,new_disk:Disk) {
 
 
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Guarda el FileSystem en una imagen blanco y negro.
+Entradas: El mismo
+Salidas: No hay salidas.
 */
 pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
@@ -68,6 +68,11 @@ pub fn save_fs(&self){
 }
 
 impl Drop for BWFS {
+        /*
+    Descripción: Apaga el FS guardandolo de manera persistente en imagenes.
+    Entradas: El mismo
+    Salidas: No hay salidas.
+    */
     fn drop(&mut self) {
         &self.save_fs();
         println!("---BWFS--SAVED---!");
@@ -77,12 +82,12 @@ impl Drop for BWFS {
 impl Filesystem for BWFS {
     //Busca el inode asignado al ino y devuelve sus atributos
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Obtiene los atributos de un archivo existente en el FS.
+Entradas: El mismo, el request, el inodo, el reply
+Salidas: No hay salidas.
 */
-fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
-        let inode = self.disk.get_inode(ino);
+fn getattr(&mut self,_req: &Request, inodo: u64, reply: ReplyAttr) {
+        let inode = self.disk.get_inode(inodo);
         match inode {
             Some(inode) => {
                 let ttl = time::now().to_timespec();
@@ -96,9 +101,9 @@ fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
 
     //Crea un archivo en la padre pasado por parametro
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Crea un archivo nuevo en el FS.
+Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo, el modo, banderas y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
@@ -149,9 +154,9 @@ fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags
 
 
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Abre un archivo existente en el FS.
+Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo, el modo, banderas y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         let memory_block = self.disk.get_bytes_content(_ino);
@@ -167,9 +172,9 @@ fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
 
     //Busca el bloque de memoria asignado al ino y muestra su contenido
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Lee un archivo existente en el FS.
+Entradas: El mismo, el request, el id del inodo, el offset, el tamaño del buffer, el reply o respuesta
+Salidas: No hay salidas.
 */
 fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
         let memory_block = self.disk.get_bytes_content(ino);
@@ -184,9 +189,9 @@ fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, re
 
     //Escribe dentro de un archivo en base al ino pasado
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Escribe sobre un archivo ya existente en el FS.
+Entradas: El mismo, el request, el id del inodo, el offset, los datos, banderas y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn write(&mut self, _req: &Request, ino: u64, _fh: u64, offset: i64, data: &[u8], _flags: u32, reply: ReplyWrite) {
 
@@ -210,9 +215,9 @@ fn write(&mut self, _req: &Request, ino: u64, _fh: u64, offset: i64, data: &[u8]
 
     //Funcion para cambiar de nombre un archivo mediante el padre
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Renombra el archivo existente en el FS. 
+Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo, el nuevo padre, el nuevo nombre y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn rename(&mut self, _req:&Request, parent:u64, name:&OsStr, _newparent: u64, newname:&OsStr, reply:ReplyEmpty) {
         let name = name.to_str().unwrap();
@@ -236,9 +241,9 @@ fn rename(&mut self, _req:&Request, parent:u64, name:&OsStr, _newparent: u64, ne
 
     //Crea un directorio y asigna un nuevo ino
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Crea un directorio nuevo en el FS en el que se pueden guardar archivos.
+Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo, el modo y el reply o respuesta
+Salidas: No hay salidas. 
 */
 fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
         println!("----BWFS--MKDIR----");
@@ -279,9 +284,9 @@ fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply
 
     //Literalmente, lee un directorio
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Lee el directorio que se le pase como parámetro, este debe existir en el FS.
+Entradas: El mismo, el request, el id del inodo, el fh, el offset y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
         println!("----BWFS--READDIR----");
@@ -329,9 +334,9 @@ fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply:
 
     //Abre un directorio
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Abre un directorio existente en el FS.
+Entradas: El mismo, el request, el id del inodo, banderas y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         let dir = self.disk.get_inode(_ino);
@@ -347,9 +352,9 @@ fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) 
 
     //Elimina un directorio en base al nombre
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Elimina o remueve un directorio existente en el FS.
+Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn rmdir(&mut self,_req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
         println!("----BWFS--RMDIR----");
@@ -371,9 +376,9 @@ fn rmdir(&mut self,_req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty)
 
     //Devuelve las estadistcas del filesystem *no funciona bien XD
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Muestra las estadísticas básicas del FS, como cantidad de inodos o bloques de memoria.
+Entradas: El mismo, el request, el id del inodo, el reply o respuesta
+Salidas: No hay salidas.
 */
 fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
         println!("----BWFS--STATFS----");
@@ -399,9 +404,9 @@ fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
 
     //Si datasync != 0, solo se deben vaciar los datos del usuario, no los metadatos.
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Sincroniza los contenidos de los archivos, si es diferente a 0 no borra los metadatos pero si los datos del usuario.
+Entradas: El mismo, el request, el id del inodo, el fh, booleano sobre si la data esta sincronizada y el reply o respuesta
+Salidas: No hay salidas. 
 */
 fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: ReplyEmpty) {
         println!("----BWFS--FSYNC----");
@@ -411,9 +416,9 @@ fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: Re
 
     //Revisa el acceso de los permisos
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Revisa si puede acceder a un archivo ya existente en el FS.
+Entradas: El mismo, el request, el id del inodo, una mascara y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn access(&mut self, _req: &Request, _ino: u64, _mask: u32, reply: ReplyEmpty) {
         println!("----BWFS--ACCESS----");
@@ -424,9 +429,9 @@ fn access(&mut self, _req: &Request, _ino: u64, _mask: u32, reply: ReplyEmpty) {
     // NO SE SI SIRVE
     //---------------------------------------------------------------------------------------
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Desvincula un archivo, ya sea vinculo normal o vínculo simbólico.
+Entradas: El mismo, el request, el id del inodo padre, el nombre y el reply o respuesta
+Salidas: No hay salidas. 
 */
 fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
         println!("----BWFS--UNLINK----");
@@ -434,9 +439,9 @@ fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEm
     }
 
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Trata de eliminar o *flushear* los datos del caché.
+Entradas: El mismo, el request, el id del inodo, el fh, el lock owner y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
         println!("----BWFS--FLUSH----");
@@ -446,9 +451,9 @@ fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply
 
 /*
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: Encuentra el primer hueco de datos en un offset especifico.
+Entradas: El mismo, el request, el id del inodo, el fh, el offset, el whence y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn lseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
         println!("----BWFS--LSEEK----");
@@ -459,9 +464,9 @@ fn lseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: 
 */
     //Revissa dentro de un directorio por su nombre y extrae los atributos
     /*
-Descripción: 
-Entradas: 
-Salidas: 
+Descripción: /////////
+Entradas: El mismo, el request, el id del inodo padre, el nombre y el reply o respuesta
+Salidas: No hay salidas.
 */
 fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 

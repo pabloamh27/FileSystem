@@ -84,12 +84,8 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
             data_position = i;
             break;
         }
-        else if data[i] == 0 {
-            pixels_colors.push(255);
-            counter = counter + 1;
-
-        } else {
-            pixels_colors.push(0);
+        else {
+            pixels_colors.push(data[i]);
             counter = counter + 1;
         }
     }
@@ -100,6 +96,30 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
     }
     write_pixels(width, height, data.clone(), save_path, file_counter + 1, data_position);
 }
+
+/*
+Descripción: Valida que la ruta de la para cargar el fs tenga imagenes.
+Entradas: la direccion a verificar.
+Salidas: Un booleano que indica si la ruta tiene contenido .
+*/
+pub fn validate_fs_path(mut path:String) -> bool{
+    let mut counter = 0;
+    let mut final_path = String::new();
+    loop {
+        final_path = format!("{}{}{}{}", path, "/file", counter, ".png");
+        if Path::new(final_path.as_str()).exists() {
+            counter = counter + 1;
+        }
+        else {
+            break;
+        }
+    }
+    if counter == 0 {
+        return false;
+    }
+    return true;
+}
+
 
 
 /*
@@ -163,18 +183,22 @@ Entradas: La ruta del disco a cargar.
 Salidas: El disco cargado o un error.
 */
 pub fn load_disk(path: String) -> Option<Disk> {
-    let img = image::open(path).unwrap();
-    let mut data = Vec::new();
-    for pixel in img.pixels() {
-        let pixel = pixel.2;
-        if pixel[0] == 0 {
-            data.push(1);
-        } else {
-            data.push(0);
+    //por cada imagen en la ruta
+    let mut data: Vec<u8> = Vec::new();
+    let mut file_counter = 0;
+    let mut final_path = format!("{}{}{}{}", path, "/file", file_counter, ".png");
+    while validate_path(final_path.clone()){
+        file_counter += 1;
+        let img = image::open(final_path.clone()).unwrap();
+        for pixel in img.pixels() {
+            let pixel = pixel.2;
+            data.push(pixel[0]);
         }
+        final_path = format!("{}{}{}{}", path, "/file", file_counter, ".png");
     }
     let disk_to_load = decode(data);
     //Aca se carga el disc al fs
     println!("----BWFS--DISCO CARGADO---------");
     return Some(disk_to_load);
+
 }

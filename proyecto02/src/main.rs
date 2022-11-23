@@ -10,7 +10,7 @@
 #[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
-use crate::save_disk::write_pixels;
+use crate::save_disk::{load_disk, validate_fs_path, write_pixels};
 use std::env;
 use std::ffi::OsStr;
 use image;
@@ -27,9 +27,15 @@ fn main() {
  */
     let disk_direction = env::args().nth(1).unwrap();
     let mountpoint = env::args().nth(2).unwrap();
-    let disk_to_save = env::args().nth(3).unwrap();
-    let fs = filesystem_management::BWFS::new(mountpoint.clone(), disk_direction.clone(), disk_to_save.clone());
-    //fsck::check_consistens(&fs);
+    let mut  fs = filesystem_management::BWFS::new(mountpoint.clone(), disk_direction.clone());
+    if validate_fs_path(disk_direction.clone()) {
+        let mut disk = load_disk(disk_direction.clone());
+        fs = filesystem_management::BWFS::load(disk.unwrap(), fs);
+        println!("---------------------------------CHARGING OLD DISK---------------------------------");
+    } else {
+        println!("---------------------------------CREATING NEW DISK---------------------------------");
+
+    }
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();
     println!("BWFS started!");
     fuse::mount(fs, &mountpoint, &options).unwrap();

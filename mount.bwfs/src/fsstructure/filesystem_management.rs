@@ -480,7 +480,6 @@ Descripción: /////////
 Entradas: El mismo, el request, el id del inodo padre, el nombre y el reply o respuesta
 Salidas: No hay salidas.
 */
-
 fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 
         let fila_name = name.to_str().unwrap();

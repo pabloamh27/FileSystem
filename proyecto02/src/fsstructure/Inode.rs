@@ -39,7 +39,7 @@ Descripción: Elimina una referencia a un bloque de memoria a un I-node.
 Entradas: El mismo I-node y la referencia a eliminar.
 Salidas: No tiene salidas.
 */
-*/
+
 pub fn delete_reference(&mut self,ref_value: usize) {
         self.references.retain(|i| *i != ref_value);
     }

@@ -322,6 +322,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "mountbwfs"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "env_logger",
+ "fuse",
+ "image",
+ "libc",
+ "log 0.4.17",
+ "png 0.17.7",
+ "quircs",
+ "serde",
+ "sysinfo",
+ "thread-scoped",
+ "time",
+]
+
+[[package]]
 name = "ntapi"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -435,24 +453,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ea3d908b0e36316caf9e9e2c4625cdde190a7e6f440d794667ed17a1855e725"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "proyecto02"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "env_logger",
- "fuse",
- "image",
- "libc",
- "log 0.4.17",
- "png 0.17.7",
- "quircs",
- "serde",
- "sysinfo",
- "thread-scoped",
- "time",
 ]
 
 [[package]]

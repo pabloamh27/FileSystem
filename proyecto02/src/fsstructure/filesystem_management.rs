@@ -20,7 +20,7 @@ Entradas: No tiene entradas.
 Salidas: No tiene salidas.
 */
 pub struct BWFS {
-    disk : Disk
+    pub(crate) disk : Disk
 }
 impl BWFS {
     /*
@@ -28,13 +28,25 @@ Descripción: Crea un nuevo FS basado en un disco en especifico.
 Entradas: Ruta del punto de montaje, ruta del disco, ruta del disco a guardar
 Salidas: A si mismo
 */
-pub fn new(root_path:String, disk_path:String, path_save:String) -> Self{
+pub fn new(root_path:String, disk_path:String) -> Self{
         //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
-        let new_disk = Disk::new(root_path.to_string(), disk_path, path_save);
+        let new_disk = Disk::new(root_path.to_string(), disk_path);
         BWFS {
             disk : new_disk
         }
-    }
+}
+    /*
+Descripción: Carga un nuevo disco desde el binario obtenido de las imagenes.
+Entradas: binario del disco, el filesystem vacío.
+Salidas: el filesystem ingresado con los datos cargados
+*/
+pub fn load(disk:Disk,mut fs:BWFS) -> BWFS{
+    fs.disk = disk;
+    return fs
+}
+
+
+
 
     /*
 Descripción: Obtiene el disco que se esta usando en el FS actualmente.
@@ -107,9 +119,8 @@ Salidas: No hay salidas.
 */
 fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
-        let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
-            ino_ref : ino_available,
+            ino_ref : self.disk.get_next_available_inode(),
             data : Vec::new()
         };
 
@@ -163,7 +174,7 @@ fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         match memory_block {
             Some(memory_block) => {
                 reply.opened(1, 0);
-                print!("----BWFS--OPEN----");
+                print!("----BWFS--OPEN----\n");
             },
             None => reply.error(ENOENT)
         }
@@ -271,7 +282,7 @@ fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply
 
 
         let inode = Inode {
-            name: name,
+            name,
             attributes: attr,
             references: Vec::new()
         };
@@ -444,7 +455,7 @@ Entradas: El mismo, el request, el id del inodo, el fh, el lock owner y el reply
 Salidas: No hay salidas.
 */
 fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
-        println!("----BWFS--FLUSH----");
+        println!("----BWFS--FLUSH----\n");
         reply.error(ENOSYS);
     }
 
@@ -468,7 +479,8 @@ Descripción: /////////
 Entradas: El mismo, el request, el id del inodo padre, el nombre y el reply o respuesta
 Salidas: No hay salidas.
 */
-fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+
+    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 
         let fila_name = name.to_str().unwrap();
         let inode = self.disk.find_inode_in_references_by_name(parent, fila_name);
@@ -479,22 +491,10 @@ fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntr
                 println!("----BWFS--LOOKUP----");
             },
             None => {
+                println!("ERROR EN LOOKUP");
                 reply.error(ENOENT);
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 }

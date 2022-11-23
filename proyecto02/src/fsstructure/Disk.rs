@@ -20,20 +20,18 @@ Salidas: No tiene salidas.
 pub struct Disk {
     pub inodes_block: Vec<Inode>,
     pub memory_block : Vec<MemoryBlock>,
-    pub root_path: String,
-    pub path_save: String
+    pub root_path: String
 }
 impl Disk {
-    //Crea un nuevo disco y crea el inode raiz
-/*
+
+/*Crea un nuevo disco y crea el inode raiz
+
 Descripción: Crea un nuevo Disk, crea un nuevo superbloque de memory blocks, asigna los tiempos iniciales y le da atributos.
 Entradas: La ruta del disco, la ruta donde se va a guardar el disco.
 Salidas: El nuevo Disk.
 */
 
-pub fn new(path:String, disk_path:String, path_to_save:String) -> Disk{
-
-        println!("-----CREATING DISK------");
+pub fn new(path:String, disk_path:String) -> Disk{
         unsafe{
             let mut memory_block = Vec::new();
             let mut blocks = Vec::new(); //Aca guardamos los inodes
@@ -64,7 +62,7 @@ pub fn new(path:String, disk_path:String, path_to_save:String) -> Disk{
 
             blocks.push(first_node);
 
-            let new_disk = Disk { inodes_block: blocks, memory_block,root_path :  path, path_save:path_to_save};
+            let new_disk = Disk { inodes_block: blocks, memory_block,root_path :  path};
             if validate_path(disk_path.clone()) {
                 println!("------WE FOUND A DISK TO LOAD------");
                 let disk_to_load = load_fs(disk_path);
@@ -233,7 +231,7 @@ Descripción: Escribe los datos en el memory block asociado a un Inode por medio
 Entradas: A si mismo, el Id del inode al que se le va a escribir datos, los datos que se van a escribir.
 Salidas: No tiene salidas.
 */
-*/
+
 pub fn write_content(&mut self, ino_ref: u64, content: Vec<u8>) {
         for i in 0..content.len(){
             self.add_data_to_memory_block(ino_ref.clone(), content[i].clone());

@@ -76,7 +76,12 @@ impl Drop for BWFS {
 
 impl Filesystem for BWFS {
     //Busca el inode asignado al ino y devuelve sus atributos
-    fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn getattr(&mut self,_req: &Request, ino: u64, reply: ReplyAttr) {
         let inode = self.disk.get_inode(ino);
         match inode {
             Some(inode) => {
@@ -90,7 +95,12 @@ impl Filesystem for BWFS {
     }
 
     //Crea un archivo en la padre pasado por parametro
-    fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
         let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
@@ -138,7 +148,12 @@ impl Filesystem for BWFS {
 
 
 
-    fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         let memory_block = self.disk.get_bytes_content(_ino);
         match memory_block {
             Some(memory_block) => {
@@ -151,7 +166,12 @@ impl Filesystem for BWFS {
 
 
     //Busca el bloque de memoria asignado al ino y muestra su contenido
-    fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
         let memory_block = self.disk.get_bytes_content(ino);
         match memory_block {
             Some(memory_block) => {reply.data(memory_block);
@@ -163,7 +183,12 @@ impl Filesystem for BWFS {
     }
 
     //Escribe dentro de un archivo en base al ino pasado
-    fn write(&mut self, _req: &Request, ino: u64, _fh: u64, offset: i64, data: &[u8], _flags: u32, reply: ReplyWrite) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn write(&mut self, _req: &Request, ino: u64, _fh: u64, offset: i64, data: &[u8], _flags: u32, reply: ReplyWrite) {
 
         let inode = self.disk.get_mut_inode(ino);
         let content: Vec<u8> = data.to_vec();
@@ -184,7 +209,12 @@ impl Filesystem for BWFS {
 
 
     //Funcion para cambiar de nombre un archivo mediante el padre
-    fn rename(&mut self, _req:&Request, parent:u64, name:&OsStr, _newparent: u64, newname:&OsStr, reply:ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn rename(&mut self, _req:&Request, parent:u64, name:&OsStr, _newparent: u64, newname:&OsStr, reply:ReplyEmpty) {
         let name = name.to_str().unwrap();
         let inode :Option<&Inode> = self.disk.find_inode_in_references_by_name(parent, name);
         match inode {
@@ -205,7 +235,12 @@ impl Filesystem for BWFS {
     }
 
     //Crea un directorio y asigna un nuevo ino
-    fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply: ReplyEntry) {
         println!("----BWFS--MKDIR----");
 
         let ino = self.disk.get_next_available_inode();
@@ -243,7 +278,12 @@ impl Filesystem for BWFS {
     }
 
     //Literalmente, lee un directorio
-    fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
         println!("----BWFS--READDIR----");
 
         if ino == 1 {
@@ -288,7 +328,12 @@ impl Filesystem for BWFS {
     }
 
     //Abre un directorio
-    fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn opendir(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         let dir = self.disk.get_inode(_ino);
         match dir {
             Some(dir) => {
@@ -301,7 +346,12 @@ impl Filesystem for BWFS {
     }
 
     //Elimina un directorio en base al nombre
-    fn rmdir(&mut self,_req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn rmdir(&mut self,_req: &Request, parent: u64, name: &OsStr, reply: ReplyEmpty) {
         println!("----BWFS--RMDIR----");
 
         let name = name.to_str().unwrap();
@@ -320,7 +370,12 @@ impl Filesystem for BWFS {
     }
 
     //Devuelve las estadistcas del filesystem *no funciona bien XD
-    fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
         println!("----BWFS--STATFS----");
 
         let mut blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
@@ -343,14 +398,24 @@ impl Filesystem for BWFS {
     }
 
     //Si datasync != 0, solo se deben vaciar los datos del usuario, no los metadatos.
-    fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: ReplyEmpty) {
         println!("----BWFS--FSYNC----");
         reply.error(ENOSYS);
     }
 
 
     //Revisa el acceso de los permisos
-    fn access(&mut self, _req: &Request, _ino: u64, _mask: u32, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn access(&mut self, _req: &Request, _ino: u64, _mask: u32, reply: ReplyEmpty) {
         println!("----BWFS--ACCESS----");
         reply.ok();
     }
@@ -358,19 +423,34 @@ impl Filesystem for BWFS {
     //---------------------------------------------------------------------------------------
     // NO SE SI SIRVE
     //---------------------------------------------------------------------------------------
-    fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn unlink(&mut self, _req: &Request, _parent: u64, _name: &OsStr, reply: ReplyEmpty) {
         println!("----BWFS--UNLINK----");
         reply.error(ENOSYS);
     }
 
-    fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
         println!("----BWFS--FLUSH----");
         reply.error(ENOSYS);
     }
 
 
 /*
-    fn lseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn lseek(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _whence: u32, reply: ReplyEmpty) {
         println!("----BWFS--LSEEK----");
         reply.error(ENOSYS);
     }
@@ -378,7 +458,12 @@ impl Filesystem for BWFS {
 
 */
     //Revissa dentro de un directorio por su nombre y extrae los atributos
-    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+    /*
+Descripción: 
+Entradas: 
+Salidas: 
+*/
+fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 
         let fila_name = name.to_str().unwrap();
         let inode = self.disk.find_inode_in_references_by_name(parent, fila_name);

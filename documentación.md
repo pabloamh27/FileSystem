@@ -147,7 +147,11 @@ aaaa
 
 
 # Lecciones Aprendidas
-aa
+En este proyecto se trató mucho el tema de como un SO administra los datos por medio de un FileSystem, se aprendió que es fundamental tener un buen FS para poder administrar los datos de manera eficiente, rápida y persistente, sin embargo no que sea fundamental no quiere decir que sea una tarea fácil, como grupo la pasamos especialmente difícil con este proyecto dado a que además de estar a final de semestre este lo obliga como ingeniero a pensar fuera de la caja.
+
+Es un proyecto que enseña de manera espectacular como funciona el sistema de los i-nodos que (en este caso) fue el que escogimos para el proyecto, también es curioso ya que le enseña al programador y le brinda un mejor conocimiento sobre lo que está pasando por debajo de la interfaz gráfica que vemos todos los días.
+
+En resumen, una conclusión muy buena a todos los temas vistos a  lo largo del curso ya que da una mejor perspectiva sobre el sistema operativo y como este esta estructurado a lo interno, además agradecemos el uso de Rust ya que demuestra que es un lenguaje perfecto para la programación a bajo nivel, es un lenguaje super completo y definitivamente es de las cosas que más rescatamos del curso.
 
 # Bibliografía
 - https://docs.rs/image/latest/image/

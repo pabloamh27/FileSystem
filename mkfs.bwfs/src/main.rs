@@ -10,11 +10,7 @@
 #[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
-use crate::save_disk::{load_disk, validate_fs_path, write_pixels};
 use std::env;
-use std::ffi::OsStr;
-use image;
-use quircs;
 use std::path::Path;
 use std::fs;
 

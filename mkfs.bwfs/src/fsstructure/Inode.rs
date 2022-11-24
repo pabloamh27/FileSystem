@@ -1,9 +1,5 @@
-use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
-use std::ffi::OsStr;
-use std::mem;
+use fuse::FileAttr;
 use serde::{Serialize, Deserialize};
-use image::Luma;
 use crate::fileAttribute::FileAttrDef;
 
 
@@ -44,13 +40,6 @@ pub fn delete_reference(&mut self,ref_value: usize) {
         self.references.retain(|i| *i != ref_value);
     }
 
-    //Cambia el nombre del Inode
-    /*
-Descripción: Cambia el nombre de un I-node.
-Entradas: El mismo I-node y el nuevo nombre.
-Salidas: No tiene salidas.
-*/
-pub fn change_name(&mut self,value: String) {
-        self.name = value;
-    }
+
+
 }

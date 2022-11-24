@@ -1,13 +1,7 @@
-use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
-use std::ffi::OsStr;
-use std::mem;
+use fuse::{FileType, FileAttr};
 use serde::{Serialize, Deserialize};
-use image::Luma;
-use crate::fileAttribute::*;
 use crate::Inode::*;
 use crate::memory_block::*;
-use crate::save_disk::*;
 
 
 //Creamos una estructura para guardar nuestros archivos Inodes
@@ -32,41 +26,38 @@ Salidas: El nuevo Disk.
 */
 
 pub fn new(save_path:String) -> Disk{
-        unsafe{
-            let mut memory_block = Vec::new();
-            let mut blocks = Vec::new(); //Aca guardamos los inodes
-            let time = time::now().to_timespec();
-            let attributes = FileAttr {
-                ino: 1,
-                size: 0,
-                blocks: 0,
-                atime: time,
-                mtime: time,
 
-                ctime: time,
-                crtime: time,
-                kind: FileType::Directory,
-                perm: 0o755,
-                nlink: 0,
-                uid: 0,
-                gid: 0,
-                rdev: 0,
-                flags: 0,
-            };
-            let name = "Empty";
-            let first_node = Inode {
-                name : name.to_string(),
-                attributes,
-                references: Vec::new()
-            };
+    let memory_block = Vec::new();
+    let mut blocks = Vec::new(); //Aca guardamos los inodes
+    let time = time::now().to_timespec();
+    let attributes = FileAttr {
+        ino: 1,
+        size: 0,
+        blocks: 0,
+        atime: time,
+        mtime: time,
+        ctime: time,
+        crtime: time,
+        kind: FileType::Directory,
+        perm: 0o755,
+        nlink: 0,
+        uid: 0,
+        gid: 0,
+        rdev: 0,
+        flags: 0,
+    };
+    let name = "Empty";
+    let first_node = Inode {
+        name : name.to_string(),
+        attributes,
+        references: Vec::new()
+    };
+    blocks.push(first_node);
+    let new_disk = Disk { inodes_block: blocks, memory_block, save_path};
 
-            blocks.push(first_node);
+    println!("-----CREATING NEW DISK--------");
+    return new_disk;
 
-            let new_disk = Disk { inodes_block: blocks, memory_block, save_path};
-
-            println!("-----CREATING NEW DISK--------");
-            return new_disk;
-        }
     }
 
     /*
@@ -193,20 +184,6 @@ pub fn add_data_to_memory_block(&mut self, ino:u64,data:u8) {
         for i in 0..self.memory_block.len() {
             if self.memory_block[i].ino_ref == ino {
                 self.memory_block[i.clone()].add_data(data.clone()) ;
-            }
-        }
-    }
-
-    //Elimina la data el bloque de memoria asociado al ino
-    /*
-Descripción: Borra datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
-Entradas: A si mismo, el Id del inode al que se le va a borrar datos, los datos que se van a borrar.
-Salidas: No tiene salidas.
-*/
-pub fn delete_data_to_memory_block(&mut self, ino:u64,data: u8) {
-        for i in 0..self.memory_block.len() {
-            if self.memory_block[i].ino_ref == ino {
-                self.memory_block[i.clone()].delete_data(data.clone());
             }
         }
     }

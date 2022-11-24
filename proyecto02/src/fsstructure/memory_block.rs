@@ -24,16 +24,12 @@ pub struct MemoryBlock {
 impl MemoryBlock {
     //Agrega una referencia a si mismo
     /*
-Descripción:  Agrega datos a un bloque de memoria, aquí se realiza la verificación de que este no pase de 1000*1000 de tamaño.
+Descripción:  Agrega datos a un bloque de memoria
 Entradas: El mismo bloque de memoria y los datos a agregar.
 Salidas: No tiene salidas.
 */
-pub fn add_data(&mut self,data: u8) {
-        if self.data.len() <= (1000 * 1000) {
-            self.data.push(data);
-        } else {
-            panic!("-----NO SE PUEDE INGRESAR DATA MAS GRANDE QUE 1000x1000-----");
-        }
+    pub fn add_data(&mut self,data: u8) {
+        self.data.push(data);
     }
     //Elimina una referencia a si mismo
     /*

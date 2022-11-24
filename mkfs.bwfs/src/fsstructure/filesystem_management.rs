@@ -10,6 +10,7 @@ use crate::save_disk::*;
 use crate::Inode::*;
 use crate::memory_block::*;
 
+
 #[path = "src/fsstructure/Inode.rs"] use Inode;
 #[path = "src/fsstructure/Disk.rs"] use Disk;
 
@@ -74,7 +75,7 @@ Salidas: No hay salidas.
 */
 pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
-        write_pixels(1000,1000,encode_fs,"/home/estudiante/filesystem_prueba/03", 0, 0)
+        write_pixels(1000,1000,encode_fs,&self.disk.save_path, 0, 0)
     }
 
 }
@@ -121,7 +122,7 @@ fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags
 
         let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
-            ino_ref : ino_available,
+            ino_ref : self.disk.get_next_available_inode(),
             data : Vec::new()
         };
 
@@ -175,7 +176,7 @@ fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         match memory_block {
             Some(memory_block) => {
                 reply.opened(1, 0);
-                print!("----BWFS--OPEN----");
+                print!("----BWFS--OPEN----\n");
             },
             None => reply.error(ENOENT)
         }
@@ -283,7 +284,7 @@ fn mkdir(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, reply
 
 
         let inode = Inode {
-            name: name,
+            name,
             attributes: attr,
             references: Vec::new()
         };
@@ -456,7 +457,7 @@ Entradas: El mismo, el request, el id del inodo, el fh, el lock owner y el reply
 Salidas: No hay salidas.
 */
 fn flush(&mut self, _req: &Request, _ino: u64, _fh: u64, _lock_owner: u64, reply: ReplyEmpty) {
-        println!("----BWFS--FLUSH----");
+        println!("----BWFS--FLUSH----\n");
         reply.error(ENOSYS);
     }
 
@@ -481,7 +482,7 @@ Entradas: El mismo, el request, el id del inodo padre, el nombre y el reply o re
 Salidas: No hay salidas.
 */
 
-fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+    fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
 
         let fila_name = name.to_str().unwrap();
         let inode = self.disk.find_inode_in_references_by_name(parent, fila_name);
@@ -492,22 +493,10 @@ fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntr
                 println!("----BWFS--LOOKUP----");
             },
             None => {
+                println!("ERROR EN LOOKUP");
                 reply.error(ENOENT);
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 }

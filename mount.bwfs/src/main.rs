@@ -21,14 +21,14 @@ use quircs;
 
 fn main() {
 
-    let disk_direction = env::args().nth(1).unwrap();
+    let save_path = env::args().nth(1).unwrap();
     let mountpoint = env::args().nth(2).unwrap();
-    let mut fs = filesystem_management::BWFS::new(mountpoint.clone(), disk_direction.clone());
-    if validate_fs_path(disk_direction.clone()) == false {
+    let mut fs = filesystem_management::BWFS::new(mountpoint.clone(), save_path.clone());
+    if validate_fs_path(save_path.clone()) == false {
         println!("Direccion no valida!");
         return;
     }
-    let mut disk = load_disk(disk_direction.clone());
+    let mut disk = load_disk(save_path.clone());
     fs = filesystem_management::BWFS::load(disk.unwrap(), fs);
     println!("---------------------------------CHARGING OLD DISK---------------------------------");
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();

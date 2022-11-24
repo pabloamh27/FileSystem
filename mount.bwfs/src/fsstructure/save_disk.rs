@@ -139,43 +139,6 @@ pub fn validate_path(path:String) -> bool{
     }
 }
 
-/*
-HAY QUE HACER LA VERSION DE ESTA FUNCION QUE RECIBA UNA IMAGEN Y LA GUARDE EN EL DISCO
- */
-/*
-Descripción: Carga un sistema de archivos usando la ruta de este.
-Entradas: La ruta del sistema de archivos a cargar.
-Salidas: El sistema de archivos cargado o un error.
-*/
-pub fn load_fs(path : String) -> Option<Disk>{
-    // Carga la base pasada por parametro
-    let img = image::open(path).unwrap();
-    let img_gray = img.into_luma(); //La pasa a grises
-
-    //Crea el decodificador
-    let mut decoder = quircs::Quirc::default();
-
-    // Busca todos los codigos qr
-    let codes = decoder.identify(img_gray.width() as usize, img_gray.height() as usize, &img_gray);
-    let mut vec_decode: Option<Vec<u8>> = None;
-    for code in codes {
-        let code = code.expect("----RB-FS ERROR AL EXTRAER QR-----------");
-        let decoded = code.decode().expect("----RB-FS ERROR AL DECODIFICAR-------");
-        vec_decode = Some(decoded.payload);
-    }
-    match vec_decode {
-        Some(vec_decode) => {
-            let disk_to_load:Disk = decode(vec_decode);
-            //Aca se carga el disc al fs
-            println!("----RB-FS DISCO CARGADO---------");
-            return Some(disk_to_load);
-        },
-        None => {
-            println!("------- ERROR AL CARGAR EL DISCO --------");
-            return None;
-        }
-    }
-}
 
 /*
 Descripción: Carga un disco usando la ruta de este.
@@ -188,8 +151,6 @@ pub fn load_disk(path: String) -> Option<Disk> {
     let mut file_counter = 0;
     let mut final_path = format!("{}{}{}{}", path, "/file", file_counter, ".png");
     while validate_path(final_path.clone()){
-        println!("hola");
-        println!("Contador: {}", file_counter);
         file_counter += 1;
         let img = image::open(final_path.clone()).unwrap();
         for pixel in img.pixels() {
@@ -198,7 +159,6 @@ pub fn load_disk(path: String) -> Option<Disk> {
         }
         final_path = format!("{}{}{}{}", path, "/file", file_counter, ".png");
     }
-    println!("data: {:?}", data.len());
     let disk_to_load = decode(data);
     //Aca se carga el disc al fs
     println!("----BWFS--DISCO CARGADO---------");

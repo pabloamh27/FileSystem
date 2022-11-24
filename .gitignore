@@ -1,1 +1,4 @@
 proyecto02/target
+mount.bwfs/target
+fsck.bwfs/target
+mkfs.bwfs/target

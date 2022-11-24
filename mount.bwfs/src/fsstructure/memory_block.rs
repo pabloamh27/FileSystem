@@ -1,11 +1,4 @@
-use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
-use std::ffi::OsStr;
-use std::mem;
 use serde::{Serialize, Deserialize};
-use crate::fileAttribute::*;
-use image::Luma;
-
 
 //Se guarda el contenido de cada iNode creado
 #[derive(Serialize, Deserialize, Clone)]
@@ -30,14 +23,5 @@ Salidas: No tiene salidas.
 */
     pub fn add_data(&mut self,data: u8) {
         self.data.push(data);
-    }
-    //Elimina una referencia a si mismo
-    /*
-Descripción: Elimina todos los datos de un bloque de memoria.
-Entradas: El mismo bloque de memoria y los datos a eliminar.
-Salidas: No tiene salidas.
-*/
-pub fn delete_data(&mut self,data: u8) {
-        self.data.retain(|i| *i != data);
     }
 }

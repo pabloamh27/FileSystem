@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
-use fuse::{FileAttr, FileType};
-use time::Timespec;
+use fuse::FileType;
 
 #[derive(Serialize, Deserialize)]
 #[serde(remote = "FileType")]

@@ -10,11 +10,10 @@
 #[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
-use crate::save_disk::{load_disk, validate_fs_path, write_pixels};
+use crate::save_disk::{load_disk, validate_fs_path};
 use std::env;
 use std::ffi::OsStr;
-use image;
-use quircs;
+
 
 
 
@@ -28,7 +27,7 @@ fn main() {
         println!("Direccion no valida!");
         return;
     }
-    let mut disk = load_disk(save_path.clone());
+    let disk = load_disk(save_path.clone());
     fs = filesystem_management::BWFS::load(disk.unwrap(), fs);
     println!("---------------------------------CHARGING OLD DISK---------------------------------");
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();

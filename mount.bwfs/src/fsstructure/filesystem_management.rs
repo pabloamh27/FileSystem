@@ -1,10 +1,7 @@
 use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
+use libc::{ENOSYS, ENOENT, EIO};
 use std::ffi::OsStr;
 use std::mem;
-use serde::{Serialize, Deserialize};
-use crate::fileAttribute;
-use image::Luma;
 use crate::Disk::*;
 use crate::save_disk::*;
 use crate::Inode::*;
@@ -47,27 +44,6 @@ pub fn load(disk:Disk,mut fs:BWFS) -> BWFS{
 }
 
 
-
-
-    /*
-Descripción: Obtiene el disco que se esta usando en el FS actualmente.
-Entradas: El mismo
-Salidas: El disco
-*/
-pub fn get_disk(&self) -> &Disk {
-        return &self.disk;
-    }
-
-    /*
-Descripción: Setea el nuevo disco sobre el que se va a basar el FS.
-Entradas: El mismo, el disco a setear
-Salidas: No hay salidas.
-*/
-pub fn set_disk(&mut self,new_disk:Disk) {
-        self.disk = new_disk;
-    }
-
-
     /*
 Descripción: Guarda el FileSystem en una imagen blanco y negro.
 Entradas: El mismo
@@ -87,7 +63,7 @@ impl Drop for BWFS {
     Salidas: No hay salidas.
     */
     fn drop(&mut self) {
-        &self.save_fs();
+        let _ = &self.save_fs();
         println!("---BWFS--SAVED---!");
     }
 }
@@ -323,19 +299,14 @@ fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply:
                 let references = &inode.references;
 
                 for ino in references {
-
-                    if let ino = ino {
-                        let inode = self.disk.get_inode(*ino as u64);
-
-                        if let Some(inode_data) = inode {
-                            if inode_data.attributes.ino == 1 {
-                                continue;
-                            }
-
-                            let name = &inode_data.name;
-                            let offset = mem::size_of_val(&inode) as i64;
-                            reply.add(inode_data.attributes.ino, offset, inode_data.attributes.kind, name);
+                    let inode = self.disk.get_inode(*ino as u64);
+                    if let Some(inode_data) = inode {
+                        if inode_data.attributes.ino == 1 {
+                            continue;
                         }
+                        let name = &inode_data.name;
+                        let offset = mem::size_of_val(&inode) as i64;
+                        reply.add(inode_data.attributes.ino, offset, inode_data.attributes.kind, name);
                     }
                 }
 
@@ -396,14 +367,14 @@ Salidas: No hay salidas.
 fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
         println!("----BWFS--STATFS----");
 
-        let mut blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
-        let mut bfree:u64 = blocks - self.disk.memory_block.len() as u64;
-        let mut bavail:u64 = bfree;
-        let mut files:u64 = self.disk.memory_block.len().try_into().unwrap();
-        let mut ffree:u64 = 1024 as u64;
-        let mut bsize:u32 = (mem::size_of::<Vec<Inode>>() as u32 +mem::size_of::<Inode>() as u32)*1024;
-        let mut namelen:u32 = 77;
-        let mut frsize:u32 = 1;
+        let blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
+        let bfree:u64 = blocks - self.disk.memory_block.len() as u64;
+        let bavail:u64 = bfree;
+        let files:u64 = self.disk.memory_block.len().try_into().unwrap();
+        let ffree:u64 = 1024 as u64;
+        let bsize:u32 = (mem::size_of::<Vec<Inode>>() as u32 +mem::size_of::<Inode>() as u32)*1024;
+        let namelen:u32 = 77;
+        let frsize:u32 = 1;
 
         reply.statfs(blocks.clone(),
                      bfree.clone(),

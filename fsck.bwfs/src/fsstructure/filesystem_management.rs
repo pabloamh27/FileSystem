@@ -29,9 +29,9 @@ Descripción: Crea un nuevo FS basado en un disco en especifico.
 Entradas: Ruta del punto de montaje, ruta del disco, ruta del disco a guardar
 Salidas: A si mismo
 */
-pub fn new(root_path:String, disk_path:String) -> Self{
+pub fn new(disk_path:String) -> Self{
         //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
-        let new_disk = Disk::new(root_path.to_string(), disk_path);
+        let new_disk = Disk::new(disk_path);
         BWFS {
             disk : new_disk
         }

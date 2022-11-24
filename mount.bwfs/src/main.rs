@@ -23,7 +23,7 @@ fn main() {
 
     let save_path = env::args().nth(1).unwrap();
     let mountpoint = env::args().nth(2).unwrap();
-    let mut fs = filesystem_management::BWFS::new(mountpoint.clone(), save_path.clone());
+    let mut fs = filesystem_management::BWFS::new(save_path.clone());
     if validate_fs_path(save_path.clone()) == false {
         println!("Direccion no valida!");
         return;

@@ -4,8 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/fsck.bwfs/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/proyecto02/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/mkfs.bwfs/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/proyecto02/target" />
       <excludeFolder url="file://$MODULE_DIR$/fsck.bwfs/target" />
+      <excludeFolder url="file://$MODULE_DIR$/mkfs.bwfs/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

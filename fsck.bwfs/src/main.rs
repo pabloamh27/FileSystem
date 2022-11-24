@@ -25,21 +25,21 @@ use crate::filesystem_management::BWFS;
 
 
 fn main() {
-    let disk_direction = env::args().nth(1).unwrap();
-    if validate_fs_path(disk_direction.clone()) == false {
+    let save_path = env::args().nth(1).unwrap();
+    if validate_fs_path(save_path.clone()) == false {
         println!("Direccion no valida!");
         return;
     }
-    let mut disk = load_disk(disk_direction.clone()).unwrap();
+    let mut disk = load_disk(save_path.clone()).unwrap();
     println!("---------------------------------CHARGING OLD DISK---------------------------------");
     let mut sys = System::new_all();
     sys.refresh_all();
     println!("=> System:");
     println!("total memory: {} KB", sys.total_memory());
     println!("used memory : {} KB", sys.used_memory());
-    println!("RB-FS SPACE USED : {} KB", mem::size_of_val(&disk));
-    println!("RB-FS::MEMORY BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.inodes_block)*&disk.inodes_block.len());
-    println!("RB-FS::SUPER BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.memory_block)*&disk.memory_block.len());
-    println!("RB-FS SPACE AVAILABLE : {} KB", sys.total_memory()-sys.used_memory());
+    println!("BWFS SPACE USED : {} KB", mem::size_of_val(&disk));
+    println!("BWFS::MEMORY BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.inodes_block)*&disk.inodes_block.len());
+    println!("BWFS::SUPER BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.memory_block)*&disk.memory_block.len());
+    println!("BWFS SPACE AVAILABLE : {} KB", sys.total_memory()-sys.used_memory());
 
 }

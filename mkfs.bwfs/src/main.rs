@@ -19,8 +19,6 @@ use std::path::Path;
 use std::fs;
 
 
-
-
 fn main() {
 
     let save_path = env::args().nth(1).unwrap();
@@ -30,7 +28,7 @@ fn main() {
     fs::create_dir_all(save_path.clone()).unwrap();
     filesystem_management::BWFS::new(save_path.clone());
     println!("A new BWFS was created!");
-    /*
+    /* REVERSIBLE
         let mountpoint = env::args().nth(2).unwrap();
         fuse::mount(fs, &mountpoint, &options).unwrap();
      */

@@ -10,6 +10,7 @@ use crate::save_disk::*;
 use crate::Inode::*;
 use crate::memory_block::*;
 
+
 #[path = "src/fsstructure/Inode.rs"] use Inode;
 #[path = "src/fsstructure/Disk.rs"] use Disk;
 
@@ -74,7 +75,7 @@ Salidas: No hay salidas.
 */
 pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
-        write_pixels(1000,1000,encode_fs,"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/output", 0, 0)
+        write_pixels(1000,1000,encode_fs,&self.disk.save_path, 0, 0)
     }
 
 }
@@ -119,6 +120,7 @@ Salidas: No hay salidas.
 */
 fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
 
+        let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
             ino_ref : self.disk.get_next_available_inode(),
             data : Vec::new()

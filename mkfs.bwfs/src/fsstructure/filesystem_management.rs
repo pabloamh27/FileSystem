@@ -74,7 +74,7 @@ Salidas: No hay salidas.
 */
 pub fn save_fs(&self){
         let encode_fs = encode(&self.disk);
-        write_pixels(1000,1000,encode_fs,"/home/luis/Documentos/Sistemas_operativos/proyecto2/FileSystem/proyecto02/src/output", 0, 0)
+        write_pixels(1000,1000,encode_fs,"/home/estudiante/filesystem_prueba/03", 0, 0)
     }
 
 }

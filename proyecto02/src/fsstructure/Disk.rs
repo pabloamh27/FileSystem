@@ -20,7 +20,8 @@ Salidas: No tiene salidas.
 pub struct Disk {
     pub inodes_block: Vec<Inode>,
     pub memory_block : Vec<MemoryBlock>,
-    pub root_path: String
+    pub root_path: String,
+    pub save_path: String
 }
 impl Disk {
 
@@ -31,7 +32,7 @@ Entradas: La ruta del disco, la ruta donde se va a guardar el disco.
 Salidas: El nuevo Disk.
 */
 
-pub fn new(path:String, disk_path:String) -> Disk{
+pub fn new(path:String, save_path:String) -> Disk{
         unsafe{
             let mut memory_block = Vec::new();
             let mut blocks = Vec::new(); //Aca guardamos los inodes
@@ -62,20 +63,8 @@ pub fn new(path:String, disk_path:String) -> Disk{
 
             blocks.push(first_node);
 
-            let new_disk = Disk { inodes_block: blocks, memory_block,root_path :  path};
-            if validate_path(disk_path.clone()) {
-                println!("------WE FOUND A DISK TO LOAD------");
-                let disk_to_load = load_fs(disk_path);
-                match disk_to_load {
-                    Some(disk_to_load) => {
-                        return disk_to_load;
-                    },
-                    None => {
-                        println!("------CRETING NEW DISK---------");
-                        return new_disk;
-                    }
-                }
-            }
+            let new_disk = Disk { inodes_block: blocks, memory_block,root_path :  path, save_path};
+
             println!("-----CREATING NEW DISK--------");
             return new_disk;
 

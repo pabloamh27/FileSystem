@@ -15,7 +15,8 @@ use std::env;
 use std::ffi::OsStr;
 use image;
 use quircs;
-
+use std::path::Path;
+use std::fs;
 
 
 
@@ -25,11 +26,16 @@ fn main() {
     let caca: Vec<u8> = vec![1,0,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,0,1,0,1,0,1,1,1,1,1,1,1];
     write_pixels(2, 2, caca, "/home/estudiante/Escritorio/S.O/proyecto2/FileSystem/proyecto02/src/output", 0, 0);
  */
-    let disk_direction = env::args().nth(1).unwrap();
+    let save_path = env::args().nth(1).unwrap();
     let mountpoint = env::args().nth(2).unwrap();
-    let mut  fs = filesystem_management::BWFS::new(mountpoint.clone(), disk_direction.clone());
-    if validate_fs_path(disk_direction.clone()) {
-        let mut disk = load_disk(disk_direction.clone());
+    // Verify if the path exists, if exists, delete it, if not, create it
+    if Path::new(save_path.as_str()).exists() {
+        fs::remove_dir_all(save_path.clone()).unwrap();
+    }
+    fs::create_dir_all(save_path.clone()).unwrap();
+    let mut  fs = filesystem_management::BWFS::new(mountpoint.clone(), save_path.clone());
+    if validate_fs_path(save_path.clone()) {
+        let mut disk = load_disk(save_path.clone());
         fs = filesystem_management::BWFS::load(disk.unwrap(), fs);
         println!("---------------------------------CHARGING OLD DISK---------------------------------");
     } else {

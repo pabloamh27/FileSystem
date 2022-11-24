@@ -1,14 +1,5 @@
-use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC, clone};
-use std::ffi::OsStr;
-use std::io::Cursor;
-use std::mem;
-use serde::{Serialize, Deserialize};
-use crate::fileAttribute;
-use image::{Pixel, Luma, GenericImageView, GenericImage, DynamicImage, ImageBuffer, Rgb, Rgba, RgbaImage, RgbImage, GrayImage, GrayAlphaImage, ImageOutputFormat};
+use image::GenericImageView;
 use crate::Disk::*;
-use image::io::Reader as ImageReader;
-
 use std::path::Path;
 use std::fs::File;
 use std::io::BufWriter;
@@ -52,7 +43,7 @@ Descripción: Se encarga de escribir los datos serializados en binario de un dis
 Entradas: El ancho, alto, datos, ruta de guardado, contador de bloques y la posición del bloque a escribir.
 Salidas: No tiene salidas.
 */
-pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &str, file_counter: u32, mut data_position: usize) {
+pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, save_path: &str, file_counter: u32, mut data_position: usize) {
     if data.len() < ((width * height) * (file_counter + 1)) as usize {
         //rellena con ceros hasta el tamaño de la imagen
         while data.len() < ((width * height) * (file_counter + 1)) as usize {
@@ -70,9 +61,9 @@ pub fn write_pixels(width: u32, height: u32,mut data: Vec<u8>, mut save_path: &s
 
     let path = Path::new(final_path.as_str());
     let file = File::create(path).unwrap();
-    let mut w = BufWriter::new(file);
+    let w = BufWriter::new(file);
 
-    let mut encoder = png::Encoder::new(w, width, height);
+    let encoder = png::Encoder::new(w, width, height);
 
 
     let mut counter = 0;
@@ -102,7 +93,7 @@ Descripción: Valida que la ruta de la para cargar el fs tenga imagenes.
 Entradas: la direccion a verificar.
 Salidas: Un booleano que indica si la ruta tiene contenido .
 */
-pub fn validate_fs_path(mut path:String) -> bool{
+pub fn validate_fs_path(path:String) -> bool{
     let mut counter = 0;
     let mut final_path = String::new();
     loop {

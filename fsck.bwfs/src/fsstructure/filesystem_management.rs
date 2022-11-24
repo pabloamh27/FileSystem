@@ -1,10 +1,7 @@
 use fuse::{Filesystem, Request, ReplyCreate, ReplyEmpty, ReplyAttr, ReplyEntry, ReplyOpen, ReplyStatfs,ReplyData, ReplyDirectory, ReplyWrite, FileType, FileAttr};
-use libc::{ENOSYS, ENOENT, EIO, EISDIR, ENOSPC};
+use libc::{ENOSYS, ENOENT, EIO};
 use std::ffi::OsStr;
 use std::mem;
-use serde::{Serialize, Deserialize};
-use crate::fileAttribute;
-use image::Luma;
 use crate::Disk::*;
 use crate::save_disk::*;
 use crate::Inode::*;
@@ -25,50 +22,6 @@ pub struct BWFS {
 }
 impl BWFS {
     /*
-Descripción: Crea un nuevo FS basado en un disco en especifico.
-Entradas: Ruta del punto de montaje, ruta del disco, ruta del disco a guardar
-Salidas: A si mismo
-*/
-pub fn new(disk_path:String) -> Self{
-        //Falta verificar si hay que agregar crear un nuevo disco o cargarlo, las funciones ya estan
-        let new_disk = Disk::new(disk_path);
-        BWFS {
-            disk : new_disk
-        }
-}
-    /*
-Descripción: Carga un nuevo disco desde el binario obtenido de las imagenes.
-Entradas: binario del disco, el filesystem vacío.
-Salidas: el filesystem ingresado con los datos cargados
-*/
-pub fn load(disk:Disk,mut fs:BWFS) -> BWFS{
-    fs.disk = disk;
-    return fs
-}
-
-
-
-
-    /*
-Descripción: Obtiene el disco que se esta usando en el FS actualmente.
-Entradas: El mismo
-Salidas: El disco
-*/
-pub fn get_disk(&self) -> &Disk {
-        return &self.disk;
-    }
-
-    /*
-Descripción: Setea el nuevo disco sobre el que se va a basar el FS.
-Entradas: El mismo, el disco a setear
-Salidas: No hay salidas.
-*/
-pub fn set_disk(&mut self,new_disk:Disk) {
-        self.disk = new_disk;
-    }
-
-
-    /*
 Descripción: Guarda el FileSystem en una imagen blanco y negro.
 Entradas: El mismo
 Salidas: No hay salidas.
@@ -87,7 +40,7 @@ impl Drop for BWFS {
     Salidas: No hay salidas.
     */
     fn drop(&mut self) {
-        &self.save_fs();
+        let _ = &self.save_fs();
         println!("---BWFS--SAVED---!");
     }
 }
@@ -303,7 +256,6 @@ Salidas: No hay salidas.
 */
 fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
         println!("----BWFS--READDIR----");
-
         if ino == 1 {
             if offset == 0 {
                 reply.add(1, 0, FileType::Directory, ".");
@@ -324,21 +276,16 @@ fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply:
 
                 for ino in references {
 
-                    if let ino = ino {
-                        let inode = self.disk.get_inode(*ino as u64);
-
-                        if let Some(inode_data) = inode {
-                            if inode_data.attributes.ino == 1 {
-                                continue;
-                            }
-
-                            let name = &inode_data.name;
-                            let offset = mem::size_of_val(&inode) as i64;
-                            reply.add(inode_data.attributes.ino, offset, inode_data.attributes.kind, name);
+                    let inode = self.disk.get_inode(*ino as u64);
+                    if let Some(inode_data) = inode {
+                        if inode_data.attributes.ino == 1 {
+                            continue;
                         }
+                        let name = &inode_data.name;
+                        let offset = mem::size_of_val(&inode) as i64;
+                        reply.add(inode_data.attributes.ino, offset, inode_data.attributes.kind, name);
                     }
                 }
-
                 reply.ok()
             },
             None => { println!("ERROR ino={:?}", ino.clone()); reply.error(ENOENT) }
@@ -396,14 +343,14 @@ Salidas: No hay salidas.
 fn statfs(&mut self, _req: &Request, _ino: u64, reply: ReplyStatfs) {
         println!("----BWFS--STATFS----");
 
-        let mut blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
-        let mut bfree:u64 = blocks - self.disk.memory_block.len() as u64;
-        let mut bavail:u64 = bfree;
-        let mut files:u64 = self.disk.memory_block.len().try_into().unwrap();
-        let mut ffree:u64 = 1024 as u64;
-        let mut bsize:u32 = (mem::size_of::<Vec<Inode>>() as u32 +mem::size_of::<Inode>() as u32)*1024;
-        let mut namelen:u32 = 77;
-        let mut frsize:u32 = 1;
+        let blocks:u64 =  (self.disk.inodes_block.len() +self.disk.memory_block.len()) as u64;
+        let bfree:u64 = blocks - self.disk.memory_block.len() as u64;
+        let bavail:u64 = bfree;
+        let files:u64 = self.disk.memory_block.len().try_into().unwrap();
+        let ffree:u64 = 1024 as u64;
+        let bsize:u32 = (mem::size_of::<Vec<Inode>>() as u32 +mem::size_of::<Inode>() as u32)*1024;
+        let namelen:u32 = 77;
+        let frsize:u32 = 1;
 
         reply.statfs(blocks.clone(),
                      bfree.clone(),

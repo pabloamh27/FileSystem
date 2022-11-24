@@ -12,16 +12,11 @@ extern crate core;
 #[path = "fsstructure/save_disk.rs"] mod save_disk;
 
 
-use crate::save_disk::{load_disk, validate_fs_path, write_pixels};
+use crate::save_disk::{load_disk, validate_fs_path};
 use std::env;
-use std::ffi::OsStr;
-use image;
-use quircs;
 use std::mem;
-use log::error;
-use serde::de::Unexpected::Option;
-use sysinfo::{NetworkExt, NetworksExt, ProcessExt, System, SystemExt};
-use crate::filesystem_management::BWFS;
+use sysinfo::{System, SystemExt};
+
 
 
 fn main() {
@@ -30,7 +25,7 @@ fn main() {
         println!("Direccion no valida!");
         return;
     }
-    let mut disk = load_disk(save_path.clone()).unwrap();
+    let disk = load_disk(save_path.clone()).unwrap();
     println!("---------------------------------CHARGING OLD DISK---------------------------------");
     let mut sys = System::new_all();
     sys.refresh_all();

@@ -31,7 +31,7 @@ sistema de archivos.
 ### mkfs.bwfs  (FileSystem Make)
 Para la creación del FileSystem se usó:
 ###### <u>fileStructure:</u>  
-* <u>FileAttrDef (Struct):</u> Este struct define los parametros o atributos que va a tener cada archivo o directorio.
+* <u>FileAttrDef (Struct):</u> Este struct define los parámetros o atributos que va a tener cada archivo o directorio.
 * <u>TimeSpecDef (Struct):</u> Define los atributos de tiempo que va a tener un archivo o directorio.
 * <u>FileTypeDef (Enum):</u> Define los tipos que va a tener un archivo o directorio.
 ###### <u>fsstructure:</u>  
@@ -45,8 +45,8 @@ Para la creación del FileSystem se usó:
   * <u>add_reference  (Implementación de Disk):</u> Agrega la referencia a un bloque de memoria de un inode.
   * <u>get_inode  (Implementación de Disk):</u> Obtiene un inode por medio del Id, si no encuentra nada no devuelve nada.
   * <u>get_mut_inode  (Implementación de Disk):</u> Obtiene un inode mutable por medio del Id, si no encuentra nada no devuelve nada.
-  * <u>find_inode_in_reference  (Implementación de Disk):</u>  Obtiene un Inode por medio del nombre, si no encuentra nada no devuelve nada.
-  * <u>add_data_to_memory_block</u>  (Implementación de Disk): Agrega datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
+  * <u>find_inode_by_name (Implementación de Disk):</u>  Obtiene un Inode por medio del nombre, si no encuentra nada no devuelve nada.
+  * <u>fill_memory_block</u>  (Implementación de Disk): Agrega datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
   * <u>delete_data_to_memory_block</u>  (Implementación de Disk): Borra datos a un bloque de memoria asociado a un Inode buscado por medio del Id.
   * <u>write_content  (Implementación de Disk):</u> Escribe los datos en el memory block asociado a un Inode por medio del Id.
   * <u>get_bytes_content  (Implementación de Disk):</u> Obtiene los datos en el memory block asociado a un inode por medio del Id.
@@ -149,14 +149,50 @@ En el mount se utilizaron las funciones:
 |23/11/2022|19:00|22:25|Detalles Finales al FS|Todos|
 |23/11/2022|22:25|22:55|Modulos Funcionales|Pablo|
 |24/11/2022|11:00|13:00|Actualizacion de documentacion|Luis y Pablo|
-|24/11/2022|00:00|00:00|Refactorizacion y pulido|Todos|
-|24/11/2022|00:00|00:00|Entrega Final|Todos|
+|24/11/2022|13:00|16:35|Refactorizacion y pulido|Luis|
+|24/11/2022|17:00|21:00|Entrega Final|Todos|
 
 **Nota: Para el trabajo en conjunto se utilizo la herramienta Code With Me que viene integrada en el IDE CLion 2022.2.**
 
 # GitLog
 ~~~
-commit 114df117adf48d8caf3b3bfbaeab69131ed6de20 (HEAD -> main, origin/main, origin/HEAD)
+commit c2ddfd33df6e6e5bafed1c6876ebf191ccdaee59 (HEAD -> main, origin/main, origin/HEAD)
+Author: JP171001 <josepa1710@gmail.com>
+Date:   Thu Nov 24 21:05:59 2022 -0600
+
+    entrega final
+
+commit 583b0f7de04f70551b08a9d9c24c53155a319fed
+Author: JP171001 <josepa1710@gmail.com>
+Date:   Thu Nov 24 18:07:45 2022 -0600
+
+    casi terminado x3
+
+commit 0aeba841e67eff16a0d8392339e4ec4691a464ac
+Author: LuisAndresTEC <lrojasmurillo7@estudiantec.cr>
+Date:   Thu Nov 24 16:32:04 2022 -0600
+
+    refactored and cleaned mtfs.bwfs
+
+commit 96b8ee4f7e3639b030d7680df3fd73c8707d71c6
+Author: LuisAndresTEC <lrojasmurillo7@estudiantec.cr>
+Date:   Thu Nov 24 15:54:49 2022 -0600
+
+    refactored and cleaned fsck.bwfs
+
+commit 963b6fd5e1f5b821452c9f2d8c6b94b251e02156
+Author: LuisAndresTEC <lrojasmurillo7@estudiantec.cr>
+Date:   Thu Nov 24 15:12:20 2022 -0600
+
+    refactored and cleaned mkfs.bwfs
+
+commit 2b15f92efff06c6b47831ee44c9775fcf4d0d5fe
+Author: Pablo Munoz Hidalgo <53487847+pabloamh27@users.noreply.github.com>
+Date:   Thu Nov 24 12:41:15 2022 -0600
+
+    Sin proyecto 2 y docu actualizada
+
+commit 114df117adf48d8caf3b3bfbaeab69131ed6de20
 Author: Pablo Munoz Hidalgo <53487847+pabloamh27@users.noreply.github.com>
 Date:   Wed Nov 23 22:58:27 2022 -0600
 
@@ -331,7 +367,7 @@ Date:   Tue Nov 1 13:47:35 2022 -0600
 |mkfs.bwfs|14%|14%|
 |fsck.bwfs|5%|5%|
 |mount.bwfs|10%|10%|
-|Funciones de la biblioteca|26%|26% con los extras|
+|Funciones de la biblioteca|26%|25% con los extras|
 |Documentación|20%|20%|
 |Persistencia en el Disco|25%|25%|
 

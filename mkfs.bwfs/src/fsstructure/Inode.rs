@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use crate::fileAttribute::FileAttrDef;
 
 
-//Los Inodes son la unidad que movera nuestro fs
+
 
 #[derive(Serialize, Deserialize)]
 /*
@@ -19,7 +19,6 @@ pub struct Inode {
 }
 
 impl Inode {
-    //Agrega una referencia a si mismo
     /*
 Descripción: Agrega una referencia a un bloque de memoria a un I-node.
 Entradas: El mismo I-node y la referencia a agregar.
@@ -29,7 +28,6 @@ pub fn add_reference(&mut self,ref_value: usize) {
         self.references.push(ref_value);
     }
 
-    //Elimina una referencia a si mismo
     /*
 Descripción: Elimina una referencia a un bloque de memoria a un I-node.
 Entradas: El mismo I-node y la referencia a eliminar.

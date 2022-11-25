@@ -29,7 +29,7 @@ fn main() {
     }
     let disk = load_disk(save_path.clone());
     fs = filesystem_management::BWFS::load(disk.unwrap(), fs);
-    println!("---------------------------------CHARGING OLD DISK---------------------------------");
+    println!("Cargando Disco Encontrado");
     let options = ["-o", "nonempty"].iter().map(|o| o.as_ref()).collect::<Vec<&OsStr>>();
     println!("BWFS started!");
     fuse::mount(fs, &mountpoint, &options).unwrap();

@@ -26,15 +26,24 @@ fn main() {
         return;
     }
     let disk = load_disk(save_path.clone()).unwrap();
-    println!("---------------------------------CHARGING OLD DISK---------------------------------");
+    println!("Cargando Disco Encontrado");
     let mut sys = System::new_all();
     sys.refresh_all();
-    println!("=> System:");
-    println!("total memory: {} KB", sys.total_memory());
-    println!("used memory : {} KB", sys.used_memory());
-    println!("BWFS SPACE USED : {} KB", mem::size_of_val(&disk));
-    println!("BWFS::MEMORY BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.inodes_block)*&disk.inodes_block.len());
-    println!("BWFS::SUPER BLOCK SPACE USED : {} KB", mem::size_of_val(&disk.memory_block)*&disk.memory_block.len());
-    println!("BWFS SPACE AVAILABLE : {} KB", sys.total_memory()-sys.used_memory());
+
+    println!("==================================================================");
+    println!("BWFS en nuestro sistema");
+    println!("==================================================================");
+    println!("Memoria total del sistema: {} KB", sys.total_memory());
+    println!("Memoria utilizada en el sistema: {} KB", sys.used_memory());
+    println!("Espacio usado por el BWFS: {} KB", mem::size_of_val(&disk));
+    println!("==================================================================\n\n");
+
+    println!("==================================================================");
+    println!("BWFS en el disco");
+    println!("==================================================================");
+    println!("Espacio usado en memory block en el BWFS: {} KB", mem::size_of_val(&disk.inodes_block)*&disk.inodes_block.len());
+    println!("Espacio usado en el superbloque en el BWFS: {} KB", mem::size_of_val(&disk.memory_block)*&disk.memory_block.len());
+    println!("Espacio disponible: {} KB", sys.total_memory()-sys.used_memory());
+    println!("==================================================================");
 
 }

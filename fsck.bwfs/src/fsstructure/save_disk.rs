@@ -120,12 +120,12 @@ Salidas: Un booleano que indica si la ruta existe o no.
 */
 pub fn validate_path(path:String) -> bool{
     let img = image::open(path);
-    match img {
-        Ok(img) => {
-            return true;
+    return match img {
+        Ok(_img) => {
+            true
         },
-        Err(img) => {
-            return false;
+        Err(_img) => {
+            false
         }
     }
 }

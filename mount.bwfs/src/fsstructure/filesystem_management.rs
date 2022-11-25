@@ -94,7 +94,7 @@ Descripción: Crea un archivo nuevo en el FS.
 Entradas: El mismo, el request, el id del inodo de la carpeta padre, el nombre del archivo, el modo, banderas y el reply o respuesta
 Salidas: No hay salidas.
 */
-fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, mode: u32, flags: u32, reply: ReplyCreate) {
+fn create(&mut self, _req: &Request, parent: u64, name: &OsStr, _mode: u32, flags: u32, reply: ReplyCreate) {
 
         let ino_available = self.disk.get_next_available_inode();
         let memory_block = MemoryBlock {
@@ -150,7 +150,7 @@ Salidas: No hay salidas.
 fn open(&mut self, _req: &Request, _ino: u64, _flags: u32, reply: ReplyOpen) {
         let memory_block = self.disk.get_bytes_content(_ino);
         match memory_block {
-            Some(memory_block) => {
+            Some(_memory_block) => {
                 reply.opened(1, 0);
                 print!("----BWFS--OPEN----\n");
             },
@@ -165,8 +165,8 @@ Descripción: Lee un archivo existente en el FS.
 Entradas: El mismo, el request, el id del inodo, el offset, el tamaño del buffer, el reply o respuesta
 Salidas: No hay salidas.
 */
-fn read(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, size: u32, reply: ReplyData) {
-        let memory_block = self.disk.get_bytes_content(ino);
+fn read(&mut self, _req: &Request, _ino: u64, _fh: u64, _offset: i64, _size: u32, reply: ReplyData) {
+        let memory_block = self.disk.get_bytes_content(_ino);
         match memory_block {
             Some(memory_block) => {reply.data(memory_block);
                 println!("----BWFS--READ----");
@@ -182,7 +182,7 @@ Descripción: Escribe sobre un archivo ya existente en el FS.
 Entradas: El mismo, el request, el id del inodo, el offset, los datos, banderas y el reply o respuesta
 Salidas: No hay salidas.
 */
-fn write(&mut self, _req: &Request, ino: u64, _fh: u64, offset: i64, data: &[u8], _flags: u32, reply: ReplyWrite) {
+fn write(&mut self, _req: &Request, ino: u64, _fh: u64, _offset: i64, data: &[u8], _flags: u32, reply: ReplyWrite) {
 
         let inode = self.disk.get_mut_inode(ino);
         let content: Vec<u8> = data.to_vec();
@@ -277,10 +277,10 @@ Descripción: Lee el directorio que se le pase como parámetro, este debe existi
 Entradas: El mismo, el request, el id del inodo, el fh, el offset y el reply o respuesta
 Salidas: No hay salidas.
 */
-fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply: ReplyDirectory) {
+fn readdir(&mut self, _req: &Request, _ino: u64, _fh: u64, offset: i64, mut reply: ReplyDirectory) {
         println!("----BWFS--READDIR----");
 
-        if ino == 1 {
+        if _ino == 1 {
             if offset == 0 {
                 reply.add(1, 0, FileType::Directory, ".");
                 reply.add(1, 1, FileType::Directory, "..");
@@ -288,7 +288,7 @@ fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply:
             }
         }
 
-        let inode: Option<&Inode> = self.disk.get_inode(ino);
+        let inode: Option<&Inode> = self.disk.get_inode(_ino);
         if mem::size_of_val(&inode) == offset as usize {
             reply.ok();
             return;
@@ -312,7 +312,7 @@ fn readdir(&mut self, _req: &Request, ino: u64, fh: u64, offset: i64, mut reply:
 
                 reply.ok()
             },
-            None => { println!("ERROR ino={:?}", ino.clone()); reply.error(ENOENT) }
+            None => { println!("ERROR ino={:?}", _ino.clone()); reply.error(ENOENT) }
         }
     }
 
@@ -392,7 +392,7 @@ Descripción: Sincroniza los contenidos de los archivos, si es diferente a 0 no 
 Entradas: El mismo, el request, el id del inodo, el fh, booleano sobre si la data esta sincronizada y el reply o respuesta
 Salidas: No hay salidas. 
 */
-fn fsync(&mut self, _req: &Request, ino: u64, fh: u64, datasync: bool, reply: ReplyEmpty) {
+fn fsync(&mut self, _req: &Request, _ino: u64, _fh: u64, _datasync: bool, reply: ReplyEmpty) {
         println!("----BWFS--FSYNC----");
         reply.error(ENOSYS);
     }
